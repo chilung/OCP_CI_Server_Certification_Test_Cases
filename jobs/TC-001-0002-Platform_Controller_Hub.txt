@@ -1,0 +1,13 @@
+plugin: shell
+name: TC-001-0002-001-SATA_port
+command: check_sata_port
+description:
+ 1. Use dmesg command to gather SATA information.
+ 2. Criteria: SATA port speed up to 6.0Gps.
+
+plugin: shell
+name: TC-001-0002-002-USB_2.0
+command: check_usb_port
+description:
+ 1. Use dmesg command to gather USB information.
+ 2. Criteria: USB version must be 2.0.
