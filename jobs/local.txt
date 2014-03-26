@@ -1,0 +1,738 @@
+name: __benchmarks__
+plugin: local
+description: Benchmarks tests
+description-ar.UTF-8: اختبارات قياس الأداء
+description-bs.UTF-8: Testovi mjerenja mogućnosti računara
+description-cs.UTF-8: Test výkonu
+description-de.UTF-8: Leistungsüberprüfungen
+description-el.utf-8: Δοκιμές επιδόσεων
+description-en_AU.UTF-8: Benchmarks tests
+description-en_GB.UTF-8: Benchmarks tests
+description-es.UTF-8: Pruebas de referencia
+description-fr.UTF-8: Tests comparatifs
+description-gd.UTF-8: Deuchainnean-luthais
+description-gl.UTF-8: Probas de referencia
+description-hu.UTF-8: Teljesítménytesztek
+description-it.UTF-8: Test dei benchmark
+description-ja.UTF-8: ベンチマークテスト
+description-ms.UTF-8: Ujian tanda aras
+description-nl.UTF-8: Testen Benchmarks
+description-oc.UTF-8: Tèsts comparatius
+description-pt_BR.UTF-8: Testes de avaliação de desempenho
+description-ru.UTF-8: Тесты производительности
+description-sl.UTF-8: Primerjalni preizkusi
+description-ug.UTF-8: ئاساسىي كۆرسەتكۈچ سىناقلىرى
+description-uk.UTF-8: Тестування продуктивності
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/benchmarks.txt?(.in)
+
+name: __cpu__
+plugin: local
+description: CPU tests
+description-ar.UTF-8: اختبارات المعالج
+description-ast.UTF-8: Pruebes de CPU
+description-be.UTF-8: Праверка ЦПУ
+description-bg.UTF-8: Тестове на процесора
+description-bn.UTF-8: সিপিও পরীক্ষা
+description-bs.UTF-8: Testovi procesora
+description-ca.UTF-8: Comprovacions de la CPU
+description-ca@valencia.UTF-8: Comprovacions de la CPU
+description-cs.UTF-8: Testy procesoru
+description-da.UTF-8: CPU-test
+description-de.UTF-8: Prozessortests
+description-el.utf-8: Έλεγχοι επεξεργαστών
+description-en_AU.UTF-8: CPU tests
+description-en_GB.UTF-8: CPU tests
+description-es.UTF-8: Pruebas de CPU
+description-fi.UTF-8: Suoritintestit
+description-fr.UTF-8: Tests du processeur
+description-gd.UTF-8: Deuchainnean CPU
+description-gl.UTF-8: Probas da CPU
+description-hu.UTF-8: Processzor tesztek
+description-it.UTF-8: Test della CPU
+description-ja.UTF-8: CPUテスト
+description-km.UTF-8: ការ​សាកល្បង​ស៊ីភីយូ
+description-ko.UTF-8: 중앙처리장치 시험
+description-lv.UTF-8: Procesora testi
+description-ms.UTF-8: Ujian CPU
+description-my.UTF-8: CPUစမ်းသပ်ခြင်း
+description-nl.UTF-8: CPU testen
+description-oc.UTF-8: Tèsts del processor
+description-pl.UTF-8: Testy CPU
+description-pt.UTF-8: testes  de CPU
+description-pt_BR.UTF-8: Testes de CPU
+description-ro.UTF-8: Teste pentru procesor
+description-ru.UTF-8: Проверка ЦПУ
+description-sl.UTF-8: Preizkusi procesorja
+description-sq.UTF-8: Testet e CPU
+description-sr.UTF-8: Тестови процесора
+description-sv.UTF-8: Processortester
+description-th.UTF-8: ทดสอบซีพียู
+description-tr.UTF-8: İşlemci sınamaları
+description-ug.UTF-8: CPU سىناقلىرى
+description-uk.UTF-8: Тестування процесора
+description-zh_CN.UTF-8: 中央处理器测试
+description-zh_TW.UTF-8: CPU 測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/cpu.txt?(.in)
+
+name: __disk__
+plugin: local
+description: Disk tests
+description-ace.UTF-8: Uji Disk
+description-am.UTF-8: የዲስክ ሙከራ
+description-ar.UTF-8: اختبارات القرص
+description-ast.UTF-8: Pruebes de discu
+description-be.UTF-8: Праверка дыска
+description-bg.UTF-8: Тестове на диск
+description-bn.UTF-8: ডিস্ক পরীক্ষা
+description-bo.UTF-8: གསོག་སྡེར་བརྟག་ཞིབ
+description-br.UTF-8: Prouadoù ar c'hantennoù
+description-bs.UTF-8: Disk testovi
+description-ca.UTF-8: Comprovacions de disc
+description-ca@valencia.UTF-8: Comprovacions de disc
+description-ckb.UTF-8: تاقیکردنه‌وه‌کانی په‌پکه‌
+description-cs.UTF-8: Testy disku
+description-cy.UTF-8: Profion disg
+description-da.UTF-8: Test af disk
+description-de.UTF-8: Festplattentests
+description-el.utf-8: Δοκιμές δίσκου
+description-en_AU.UTF-8: Disk tests
+description-en_CA.UTF-8: Disk tests
+description-en_GB.UTF-8: Disk tests
+description-eo.UTF-8: Disktestoj
+description-es.UTF-8: Pruebas de disco
+description-et.UTF-8: Kettatestid
+description-eu.UTF-8: Diskoen probak
+description-fi.UTF-8: Kiintolevyjen testit
+description-fr.UTF-8: Tests des disques
+description-gd.UTF-8: Deuchainnean dìosg
+description-gl.UTF-8: Probas do disco
+description-he.UTF-8: בדיקות הכונן
+description-hi.UTF-8: डिस्क जाँच
+description-hr.UTF-8: Diskovni testovi
+description-hu.UTF-8: Lemeztesztek
+description-id.UTF-8: Uji cakram
+description-is.UTF-8: Diskaprófanir
+description-it.UTF-8: Test del disco
+description-ja.UTF-8: ディスクテスト
+description-kk.UTF-8: Диск тексерістері
+description-km.UTF-8: ការ​សាកល្បង​ថាស
+description-kn.UTF-8: ಡಿಸ್ಕ್ ಪರೀಕ್ಷೆಗಳು
+description-ko.UTF-8: 디스크 테스트
+description-ku.UTF-8: Ceribandinên dîskê
+description-lt.UTF-8: Disko testai
+description-lv.UTF-8: Disku testi
+description-mr.UTF-8: साठवण परिक्षण
+description-ms.UTF-8: Ujian cakera
+description-my.UTF-8: disk စမ်းသပ်မူများ
+description-nb.UTF-8: Disktester
+description-ne.UTF-8: डिस्क परीक्षण
+description-nl.UTF-8: Schijf testen
+description-oc.UTF-8: Tèsts dels disques
+description-pl.UTF-8: Testy dysków twardych
+description-pt.UTF-8: Testes de disco rígido
+description-pt_BR.UTF-8: Testes de disco
+description-ro.UTF-8: Teste disk
+description-ru.UTF-8: Проверка диска
+description-si.UTF-8: තැටි පරික්ෂණ
+description-sk.UTF-8: Testovanie diskov
+description-sl.UTF-8: Preizkusi diska
+description-sq.UTF-8: Testimet e diskut
+description-sr.UTF-8: Тестови диска
+description-sv.UTF-8: Disktester
+description-th.UTF-8: ทดสอบดิสก์
+description-tr.UTF-8: Disk sınamaları
+description-ug.UTF-8: دىسكا سىناقلىرى
+description-uk.UTF-8: Перевірка дисків
+description-vi.UTF-8: Kiểm tra ổ cứng
+description-zh_CN.UTF-8: 磁盘测试
+description-zh_HK.UTF-8: 磁碟測試
+description-zh_TW.UTF-8: 磁碟測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/disk.txt?(.in)
+
+name: __dcmi_in_band__
+plugin: local
+description: Datacenter Mangement Interface in band tests
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/dcmi_in_band.txt?(.in)
+
+name: __info__
+plugin: local
+description: Informational tests
+description-ar.UTF-8: اختبارات استعلامية
+description-ast.UTF-8: Pruebes informatives
+description-be.UTF-8: Інфармацыйныя тэсты
+description-bn.UTF-8: তথ্যজনিত পরীক্ষা
+description-bs.UTF-8: Informacioni testovi
+description-ca.UTF-8: Comprovacions informatives
+description-ca@valencia.UTF-8: Comprovacions informatives
+description-cs.UTF-8: Informační testy
+description-da.UTF-8: Informationeltester
+description-de.UTF-8: Informatorische Tests
+description-el.utf-8: Πληροφοριακοί έλεγχοι
+description-en_AU.UTF-8: Informational tests
+description-en_GB.UTF-8: Informational tests
+description-es.UTF-8: Pruebas informativas
+description-fi.UTF-8: Tietoa keräävät testit
+description-fr.UTF-8: Tests informatifs
+description-gd.UTF-8: Deuchainnean fiosrachaidh
+description-gl.UTF-8: Probas informativas
+description-hu.UTF-8: Információs tesztek
+description-it.UTF-8: Test informativi
+description-ja.UTF-8: 情報テスト
+description-km.UTF-8: ការ​សាកល្បង​ព័ត៌មាន
+description-lv.UTF-8: Informatīvie testi
+description-ms.UTF-8: Ujian maklumat
+description-my.UTF-8: Informational စမ်းသပ်ခြင်း
+description-nl.UTF-8: Informatieve testen
+description-oc.UTF-8: Tèsts informatius
+description-pl.UTF-8: Testy informacyjne
+description-pt_BR.UTF-8: Testes de informação
+description-ro.UTF-8: Teste pentru informare
+description-ru.UTF-8: Информационные тесты
+description-sl.UTF-8: Informacijski preizkusi
+description-sq.UTF-8: Testime informuese
+description-sr.UTF-8: Тестови информисања
+description-sv.UTF-8: Informationstester
+description-tr.UTF-8: Bilgisel sınamalar
+description-ug.UTF-8: ئۇچۇر سىناقلىرى
+description-uk.UTF-8: Інформаційні тести
+description-zh_CN.UTF-8: 信息性测试
+description-zh_TW.UTF-8: 信息測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/info.txt?(.in)
+
+name: __ipmi__
+plugin: local
+description: IPMI tests
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/ipmi.txt?(.in)
+
+name: __memory__
+plugin: local
+description: Memory tests
+description-ar.UTF-8: اختبارات الذاكرة
+description-ast.UTF-8: Pruebes de memoria
+description-be.UTF-8: Праверка памяці
+description-bn.UTF-8: মেমোরি পরীক্ষা
+description-bs.UTF-8: Testovi memorije
+description-ca.UTF-8: Comprovacions de la memòria
+description-ca@valencia.UTF-8: Comprovacions de la memòria
+description-cs.UTF-8: Testy paměti
+description-da.UTF-8: Hukommelsestester
+description-de.UTF-8: Speichertests
+description-el.utf-8: Έλεγχοι μνήμης
+description-en_AU.UTF-8: Memory tests
+description-en_GB.UTF-8: Memory tests
+description-es.UTF-8: Pruebas de memoria
+description-fi.UTF-8: Muistitestit
+description-fr.UTF-8: Tests de la mémoire
+description-gd.UTF-8: Deuchainnean cuimhne
+description-gl.UTF-8: Probas de memoria
+description-hu.UTF-8: Memória-tesztek
+description-it.UTF-8: Test della memoria
+description-ja.UTF-8: メモリーテスト
+description-km.UTF-8: ការ​សាកល្បង​អង្គ​ចងចាំ
+description-lv.UTF-8: Atmiņas testi
+description-ms.UTF-8: Ujian ingatan
+description-my.UTF-8: Memory စမ်းသပ်ခြင်း
+description-nl.UTF-8: Geheugen testen
+description-oc.UTF-8: Tèsts de la memòria
+description-pl.UTF-8: Testy pamięci operacyjnej
+description-pt.UTF-8: Testes à memória
+description-pt_BR.UTF-8: Testes de memória
+description-ro.UTF-8: Teste pentru memorie
+description-ru.UTF-8: Проверка памяти
+description-sl.UTF-8: Preizkusi pomnilnika
+description-sq.UTF-8: Testime të kujtesës
+description-sr.UTF-8: Тестови меморије
+description-sv.UTF-8: Minnestester
+description-tr.UTF-8: Bellek sınamaları
+description-ug.UTF-8: ئەسلەك سىناقلىرى
+description-uk.UTF-8: Тестування пам’яті
+description-zh_CN.UTF-8: 内存测试
+description-zh_TW.UTF-8: 記憶體測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/memory.txt?(.in)
+
+name: __miscellanea__
+plugin: local
+description: Miscellaneous tests
+description-ar.UTF-8: اختبارات متنوعة
+description-ast.UTF-8: Pruebes miscelánees
+description-be.UTF-8: Разнастайныя тэсты
+description-bn.UTF-8: বিবিধ পরীক্ষা
+description-bs.UTF-8: Razni testovi
+description-ca.UTF-8: Comprovacions miscel·lànies
+description-ca@valencia.UTF-8: Comprovacions miscel·lànies
+description-cs.UTF-8: Různé testy
+description-da.UTF-8: Diverse tester
+description-de.UTF-8: Diverse Tests
+description-el.utf-8: Διάφοροι έλεγχοι
+description-en_AU.UTF-8: Miscellaneous tests
+description-en_GB.UTF-8: Miscellaneous tests
+description-es.UTF-8: Pruebas varias
+description-fi.UTF-8: Sekalaiset testit
+description-fr.UTF-8: Tests divers
+description-gd.UTF-8: Deuchainnean measgaichte
+description-gl.UTF-8: Probas misceláneas
+description-hu.UTF-8: Egyéb tesztek
+description-it.UTF-8: Test vari
+description-ja.UTF-8: その他のテスト
+description-km.UTF-8: ការ​សាកល្បង​ផ្សេងៗ
+description-lv.UTF-8: Dažādi testi
+description-ms.UTF-8: Ujian pelbagai
+description-my.UTF-8: အထွေထွေစမ်းသပ်ခြင်း
+description-nl.UTF-8: Diverse tests
+description-oc.UTF-8: Tèsts divèrs
+description-pl.UTF-8: Różne testy
+description-pt.UTF-8: Testes diversos
+description-pt_BR.UTF-8: Testes diversos
+description-ro.UTF-8: Teste diverse
+description-ru.UTF-8: Различные тесты
+description-sl.UTF-8: Razni preizkusi
+description-sq.UTF-8: Testime të përziera
+description-sr.UTF-8: Разни тестови
+description-sv.UTF-8: Diverse tester
+description-tr.UTF-8: Çeşitli sınamalar
+description-ug.UTF-8: باشقا سىناقلار
+description-uk.UTF-8: Різноманітні тестування
+description-zh_CN.UTF-8: 杂项测试
+description-zh_TW.UTF-8: 雜項測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/miscellanea.txt?(.in)
+
+name: __networking__
+plugin: local
+description: Networking tests
+description-ar.UTF-8: اختبارات الشبكة
+description-ast.UTF-8: Pruebes de rede
+description-be.UTF-8: Праверка сеткі
+description-bn.UTF-8: নেটওয়ার্ক পরীক্ষা
+description-bs.UTF-8: Testovi mreže
+description-ca.UTF-8: Comprovacions de la xarxa
+description-ca@valencia.UTF-8: Comprovacions de la xarxa
+description-cs.UTF-8: Testy síťového připojení
+description-da.UTF-8: Netværkstester
+description-de.UTF-8: Netzwerktests
+description-el.utf-8: Έλεγχοι δικτύων
+description-en_AU.UTF-8: Networking tests
+description-en_GB.UTF-8: Networking tests
+description-es.UTF-8: Pruebas de red
+description-fi.UTF-8: Verkkotestit
+description-fr.UTF-8: Tests du réseau
+description-gd.UTF-8: Deuchainnean lìonrachadh
+description-gl.UTF-8: Probas de rede
+description-hu.UTF-8: Hálózati tesztek
+description-it.UTF-8: Test di rete
+description-ja.UTF-8: ネットワークテスト
+description-km.UTF-8: ការ​សាកល្បង​បណ្ដាញ
+description-lv.UTF-8: Tīklošanas testi
+description-ms.UTF-8: Ujian rangkaian
+description-my.UTF-8: ကွန်ရက်စမ်းသပ်ခြင်း
+description-nl.UTF-8: Netwerk testen
+description-oc.UTF-8: Tèsts de la ret
+description-pl.UTF-8: Testy łączości sieciowej
+description-pt.UTF-8: testes ao funcionamento da rede
+description-pt_BR.UTF-8: Testes de rede
+description-ro.UTF-8: Teste pentru rețea
+description-ru.UTF-8: Проверка сети
+description-sl.UTF-8: Preizkusi omrežja
+description-sq.UTF-8: Testime të rrjetit
+description-sr.UTF-8: Тестови умрежавања
+description-sv.UTF-8: Nätverkstester
+description-tr.UTF-8: Şebeke sınamaları
+description-ug.UTF-8: تور سىناقلىرى
+description-uk.UTF-8: Тестування мережі
+description-zh_CN.UTF-8: 联网测试
+description-zh_TW.UTF-8: 網路測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/networking.txt?(.in)
+
+name: __optical__
+plugin: local
+description: Optical Drive tests
+description-ar.UTF-8: اختبارات القارئات البصرية
+description-ast.UTF-8: Pruebes de discos ópticos
+description-be.UTF-8: Праверка аптычных дыскаў
+description-bn.UTF-8: অপটিক্যাল ড্রাইভ পরীক্ষা
+description-bs.UTF-8: Testovi optičkih diskova
+description-ca.UTF-8: Comprovacions de les unitats òptiques
+description-ca@valencia.UTF-8: Comprovacions de les unitats òptiques
+description-cs.UTF-8: Testy optických mechanik
+description-da.UTF-8: Optisk drevtester
+description-de.UTF-8: Tests optischer Laufwerke
+description-el.utf-8: Έλεγχοι οδηγών οπτικών συσκευών
+description-en_AU.UTF-8: Optical Drive tests
+description-en_GB.UTF-8: Optical Drive tests
+description-es.UTF-8: Prueba de discos ópticos
+description-fi.UTF-8: Optisen aseman testit
+description-fr.UTF-8: Tests des lecteurs optiques
+description-gd.UTF-8: Deuchainnean dràibh lèirsinneach
+description-gl.UTF-8: Proba de discos ópticos
+description-hu.UTF-8: Optikaimeghajtó-tesztek
+description-it.UTF-8: Test delle unità ottiche
+description-ja.UTF-8: 光学ドライブテスト
+description-km.UTF-8: ការ​សាកល្បង​ដ្រាយ​អុបទិក
+description-lv.UTF-8: Optisko dziņu testi
+description-ms.UTF-8: Ujian Pemacu Optik
+description-my.UTF-8: Optical Drive စမ်းသပ်ခြင်း
+description-nl.UTF-8: Optische opslagapparaatlezer testen
+description-oc.UTF-8: Tèsts dels lectors optics
+description-pl.UTF-8: Testy napędu optycznego
+description-pt.UTF-8: testes à drive óptica
+description-pt_BR.UTF-8: Testes de dispositivo ótico
+description-ro.UTF-8: Teste pentru CD/DVD
+description-ru.UTF-8: Проверка оптических дисков
+description-sl.UTF-8: Preizkusi optičnih pogonov
+description-sq.UTF-8: Testime të draivit optikal
+description-sr.UTF-8: Тестови оптичког уређаја
+description-sv.UTF-8: Tester för optiska enheter
+description-tr.UTF-8: Optik Sürücü sınamaları
+description-ug.UTF-8: نۇر قوزغاتقۇچ سىناقلىرى
+description-uk.UTF-8: Тестування оптичного пристрою
+description-zh_CN.UTF-8: 光驱测试
+description-zh_TW.UTF-8: 光碟機測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/optical.txt?(.in)
+
+name: __power-management__
+plugin: local
+description: Power Management tests
+description-ar.UTF-8: اختبارات إدارة الطاقة
+description-ast.UTF-8: Pruebes de xestión d'enerxía
+description-be.UTF-8: Праверка кіравання электрасілкаваннем
+description-bn.UTF-8: পাওয়ার ব্যবস্থাপনা পরীক্ষা
+description-bs.UTF-8: Testovi upravljanja napajanjem
+description-ca.UTF-8: Comprovacions de la gestió de l'energia
+description-ca@valencia.UTF-8: Comprovacions de la gestió de l'energia
+description-cs.UTF-8: Testy správy napájení
+description-da.UTF-8: Strømstyringstester
+description-de.UTF-8: Energieverwaltungstests
+description-el.utf-8: Έλεγχοι διαχείρισης ενέργειας
+description-en_AU.UTF-8: Power Management tests
+description-en_GB.UTF-8: Power Management tests
+description-es.UTF-8: Pruebas de gestión de energía
+description-fi.UTF-8: Virranhallintatestit
+description-fr.UTF-8: Tests de la gestion de l'alimentation
+description-gd.UTF-8: Deuchainnean stiùireadh cumhachd
+description-gl.UTF-8: Probas de xestión de enerxía
+description-hu.UTF-8: Energiagazdálkodás tesztek
+description-it.UTF-8: Test della gestione dell'alimentazione
+description-ja.UTF-8: パワーマネジメントテスト
+description-km.UTF-8: ការ​សាកល្បង​ការ​គ្រប់គ្រង​ថាមពល
+description-lv.UTF-8: Barošanas pārvaldības testi
+description-ms.UTF-8: Ujian Pengurusan kuasa
+description-my.UTF-8: ပါဝါထိန်းချုပ်မှု့စမ်းသပ်ခြင်း
+description-nl.UTF-8: Energiebeheer testen
+description-oc.UTF-8: Tèsts de la gestion de l'alimentacion
+description-pl.UTF-8: Testy zarządzania zasilaniem
+description-pt.UTF-8: Testes à gestão de energia
+description-pt_BR.UTF-8: Testes de gerenciamento de energia
+description-ro.UTF-8: Teste pentru funcțiile de administrare a consumului
+description-ru.UTF-8: Проверка управления электропитанием
+description-sl.UTF-8: Preizkusi upravljanja porabe
+description-sq.UTF-8: Testim i menaxhimit të tensionit
+description-sr.UTF-8: Тестови управљања напајањем
+description-sv.UTF-8: Tester för strömhantering
+description-tr.UTF-8: Güç Yönetimi sınamaları
+description-ug.UTF-8: مەنبە باشقۇرۇش سىناقلىرى
+description-uk.UTF-8: Перевірка керування живленням
+description-zh_CN.UTF-8: 电源管理测试
+description-zh_TW.UTF-8: 電源管理測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/power-management.txt?(.in)
+
+name: __usb__
+plugin: local
+description: USB tests
+description-ar.UTF-8: اختبارات USB
+description-ast.UTF-8: Pruebes d'USB
+description-be.UTF-8: Праверка USB
+description-bn.UTF-8: USB পরীক্ষা করুন
+description-bs.UTF-8: USB testovi
+description-ca.UTF-8: Comprovacions de l'USB
+description-ca@valencia.UTF-8: Comprovacions de l'USB
+description-cs.UTF-8: Testy USB
+description-da.UTF-8: USB-tester
+description-de.UTF-8: USB-Tests
+description-el.utf-8: Έλεγχοι USB
+description-en_AU.UTF-8: USB tests
+description-en_GB.UTF-8: USB tests
+description-es.UTF-8: Pruebas de USB
+description-fi.UTF-8: USB-testit
+description-fr.UTF-8: Tests USB
+description-gd.UTF-8: Deuchainnean USB
+description-gl.UTF-8: Probas de USB
+description-hu.UTF-8: USB-tesztek
+description-it.UTF-8: Test delle porte USB
+description-ja.UTF-8: USBテスト
+description-km.UTF-8: ការ​សាកល្បង USB
+description-lv.UTF-8: USB testi
+description-ms.UTF-8: Ujian USB
+description-my.UTF-8: USB စမ်းသပ်ခြင်း
+description-nl.UTF-8: USB testen
+description-oc.UTF-8: Tèsts USB
+description-pl.UTF-8: Testy magistrali USB
+description-pt.UTF-8: testes ao USB
+description-pt_BR.UTF-8: Testes de USB
+description-ro.UTF-8: Teste pentru conexiunile USB
+description-ru.UTF-8: Проверка USB
+description-sl.UTF-8: Preizkusi USB
+description-sq.UTF-8: Testime të USB
+description-sr.UTF-8: Тестови УСБ-а
+description-sv.UTF-8: Tester för USB
+description-tr.UTF-8: USB sınamaları
+description-ug.UTF-8: USB سىناقلىرى
+description-uk.UTF-8: Перевірка USB
+description-zh_CN.UTF-8: USB 测试
+description-zh_HK.UTF-8: USB測試
+description-zh_TW.UTF-8: USB 測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/usb.txt?(.in)
+
+name: __virtualization__
+plugin: local
+description: Virtualization tests
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/virtualization.txt?(.in)
+
+name: __stress__
+plugin: local
+description: Stress tests
+description-ast.UTF-8: Pruebes d'estrés
+description-be.UTF-8: Стрэсс-тэсты
+description-bg.UTF-8: Стрес тестове
+description-bn.UTF-8: স্ট্রেস পরীক্ষা করুন
+description-bs.UTF-8: Testovi opterećenja
+description-ca.UTF-8: Comprovacions d'intensitat
+description-ca@valencia.UTF-8: Comprovacions d'intensitat
+description-cs.UTF-8: Zátěžové testy
+description-da.UTF-8: Stress-test
+description-de.UTF-8: Stresstests
+description-el.utf-8: Έλεγχοι υπερβολικού φόρτου
+description-en_AU.UTF-8: Stress tests
+description-en_GB.UTF-8: Stress tests
+description-es.UTF-8: Pruebas de estrés
+description-fi.UTF-8: Rasitustestit
+description-fr.UTF-8: Stress tests
+description-gd.UTF-8: Deuchainnean spàirn
+description-gl.UTF-8: Probas de resistencia
+description-hu.UTF-8: Terhelés tesztek
+description-it.UTF-8: Test di stress
+description-ja.UTF-8: ストレステスト
+description-km.UTF-8: ការ​សាកល្បង​ចំណុច​សំខាន់
+description-lv.UTF-8: Stresa testi
+description-ms.UTF-8: Ujian Tekanan
+description-my.UTF-8: Stress စမ်းသပ်ခြင်း
+description-nl.UTF-8: Stresstests
+description-oc.UTF-8: Stress tests
+description-pl.UTF-8: Testy obciążeniowe
+description-pt_BR.UTF-8: Testes de pressão
+description-ro.UTF-8: Teste de stres
+description-ru.UTF-8: Стресс-тесты
+description-sl.UTF-8: Preizkusi obremenitve
+description-sq.UTF-8: Testet e stresit
+description-sr.UTF-8: Тестови оптерећења
+description-sv.UTF-8: Stresstester
+description-th.UTF-8: เน้นการทดสอบ
+description-tr.UTF-8: Stres testleri
+description-ug.UTF-8: چارچىتىش سىناقلىرى
+description-uk.UTF-8: Стрес-тести
+description-zh_CN.UTF-8: 压力测试
+description-zh_TW.UTF-8: 壓力測試
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/stress.txt?(.in)
+
+name: __smoke__
+plugin: local
+description: Smoke tests
+description-bs.UTF-8: Testovi dima
+description-de.UTF-8: Rauch-Überprüfungen
+description-el.utf-8: Έντονες δοκιμές (τύπου smoke)
+description-en_AU.UTF-8: Smoke tests
+description-en_GB.UTF-8: Smoke tests
+description-es.UTF-8: Pruebas de humo
+description-fr.UTF-8: Test de détection de fumée
+description-gd.UTF-8: Deuchainnean ceò
+description-gl.UTF-8: Probas de fume
+description-hu.UTF-8: Záró tesztek
+description-it.UTF-8: Test smoke
+description-ms.UTF-8: Ujian asap
+description-my.UTF-8: Smoke စမ်းသပ်ခြင်း
+description-nl.UTF-8: Testen Smoke
+description-oc.UTF-8: Tèst de deteccion de fum
+description-pt_BR.UTF-8: Testes de fumaça
+description-ru.UTF-8: "Дымовое" тестирование
+description-sl.UTF-8: Neizčrpni preizkusi
+description-uk.UTF-8: Тест на перегрів
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/smoke.txt?(.in)
+
+name: __sniff__
+plugin: local
+description: Sniff Sniffers
+description-bs.UTF-8: Njuškala
+description-de.UTF-8: Sniffer testen
+description-el.utf-8: Έλεγχος για λογισμικό τύπου sniffer
+description-en_AU.UTF-8: Sniff Sniffers
+description-en_GB.UTF-8: Sniff Sniffers
+description-es.UTF-8: Olfatear olfateadores
+description-fr.UTF-8: Flairer les renifleurs
+description-gd.UTF-8: Fairich fàilidhean
+description-gl.UTF-8: Cheirar cheiróns
+description-hu.UTF-8: Szimatolók szimatolása
+description-it.UTF-8: Rileva i rilevatori
+description-ms.UTF-8: Pengesan
+description-nl.UTF-8: Sniff Sniffers
+description-oc.UTF-8: Flairar los flairaires
+description-pt_BR.UTF-8: Procurar por Sniffers
+description-ru.UTF-8: Слежка  за анализаторами траффика
+description-sl.UTF-8: Lažni preizkus
+description-uk.UTF-8: Стеження за аналізаторами трафіку
+command:
+ shopt -s extglob
+ cat $CHECKBOX_SHARE/jobs/sniff.txt?(.in)
+
+name: __TC-001-0001-CPU_Memory__
+plugin: local
+command:
+ shopt -s extglob
+ cat $CHECKBOX_SHARE/jobs/TC-001-0001-CPU_Memory.txt?(.in)
+
+name: __TC-001-0002-Platform_Controller_Hub__
+plugin: local
+command:
+ shopt -s extglob
+ cat $CHECKBOX_SHARE/jobs/TC-001-0002-Platform_Controller_Hub.txt?(.in)
+
+name: __TC-001-0004-BIOS_Remote_Update__
+plugin: local
+command:
+ shopt -s extglob
+ cat $CHECKBOX_SHARE/jobs/TC-001-0004-BIOS_Remote_Update.txt?(.in)
+
+name: __TC-001-0006-Hardware_Monitoring__
+plugin: local
+description: Hardware Monitoring via DCMI
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-001-0006-Hardware_Monitoring.txt?(.in)
+
+name: __TC-001-0007-In_band_Platform_Controller_Hub_Management_Engine__
+plugin: local
+description: Platform Controller Hub Management Engine via in-band
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-001-0007-In_band_Platform_Controller_Hub_Management_Engine.txt?(.in)
+
+name: __TC-001-0008-Out_of_band_Platform_Controller_Hub_Management_Engine__
+plugin: local
+description: Platform Controller Hub Management Engine via out-band
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-001-0008-Out_of_band_Platform_Controller_Hub_Management_Engine.txt?(.in)
+
+name: __TC-002-0002-Management_Node_Identifier__
+plugin: local
+description: Management Node Identifier
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-002-0002-Management_Node_Identifier.txt?(.in)
+
+name: __TC-002-0003-Rights_and_Credentials__
+plugin: local
+description: Rights and Credentials
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-002-0003-Rights_and_Credentials.txt?(.in)
+
+name: __TC-002-0006-Remotely_Power_Control__
+plugin: local
+description: Power Control Remote Server
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-002-0006-Remotely_Power_Control.txt?(.in)
+
+name: __TC-002-0007-Power_Draw__
+plugin: local
+description: Power Draw
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-002-0007-Power_Draw.txt?(.in)
+
+name: __TC-002-0008-Temperature__
+plugin: local
+description: Temperature
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-002-0008-Temperature.txt?(.in)
+
+name: __TC-002-0009-User_Levels__
+plugin: local
+description: BMC User Levels
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-002-0009-User_Levels.txt?(.in)
+
+name: __TC-002-0010-Inventory__
+plugin: local
+description: Information for remotely configuration
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-002-0010-Inventory.txt?(.in)
+
+name: __TC-002-0011-System_Log__
+plugin: local
+description: System Event Log
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-002-0011-System_Log.txt?(.in)
+
+name: __TC-003-0001-Hardware_Information__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-003-0001-Hardware_Information.txt?(.in)
+
+name: __TC-003-0003-Network_Performance__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-003-0003-Network_Performance.txt?(.in)
+
+name: __TC-003-0004-Disk_Healthiness__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-003-0004-Disk_Healthiness.txt?(.in)
+
+name: __TC-003-0005-System_Stress__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-003-0005-System_Stress.txt?(.in)
+
+name: __TC-004-0001-JBOD_testing__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-004-0001-JBOD_Testing.txt?(.in)
+

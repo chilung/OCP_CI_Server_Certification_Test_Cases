@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications 
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+cpu_info
+  Use lshw command to gather CPU information.
+  The program will output CPU model and L1, L2, L3 cache size.
+  Criteria: CPU model and product family must match user's input
+            and L3 cache should be larger than 20MB.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import os
+import re
+import sys
+import xml.etree.ElementTree as ET
+from subprocess import check_output
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+def run(product, family):
+    command = "lshw -xml"
+    with open(os.devnull, 'w') as NULL:
+       hwinfo_xml = check_output(command, stderr=NULL, shell=True)
+    root = ET.fromstring(hwinfo_xml)
+
+    # Parse lshw XML for gathering processor information.
+    processor = root.findall(".//product/..[@class='processor']")
+
+    if not processor:
+        print("Fail: Cannot parse any processor information.", file=sys.stderr)
+        return 10
+
+    for cpu in processor:
+        if cpu.find('product') is None:
+            print("Fail: Cannot find processor product.", file=sys.stderr)
+            return 20
+        print(cpu.find('product').text)
+        match = re.search(product + '.*' + family, cpu.find('product').text)
+        if not match:
+            print("Fail: Cannot match CPU %s %s family." %(product, family),
+	    file=sys.stderr)
+            return 25
+
+        cache_list = cpu.findall(".//size/..[@class='memory']")
+        if not cache_list:
+            print("Fail: Cannot find any CPU cache.", file=sys.stderr)
+            return 30
+
+        for cache in cache_list:
+            if cache.find('size') is None or cache.find('slot') is None:
+                print("Fail: Cannot access Last Level Cache (LLC).",
+                file=sys.stderr)
+                return 40
+
+            cache_size = int(cache.find('size').text) / 1024
+            if cache_size > 1024:
+                cache_size = cache_size / 1024
+                print(('%s %d MB') %(cache.find('slot').text, cache_size))
+                if re.search('L3', cache.find('slot').text):
+                    if cache_size < 20:
+                        print('Fail: L3 cache size less than 20MB.',
+                        file=sys.stderr)
+                        return 50
+            else:
+                print(('%s %d KB') %(cache.find('slot').text, cache_size))
+
+    return 0
+
+def main():
+    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+
+    parser.add_argument('-p', '--product', type=str, required=True,
+                        help=("The CPU product name. [Example: Xeon]"))
+    parser.add_argument('-f', '--family', type=str, required=True,
+                        help=("Processor family. [Example: E5]"))
+
+    args = parser.parse_args()
+
+    product = args.product.title()
+    family = args.family.title()
+    return run(product, family)
+
+if __name__ == '__main__':
+    sys.exit(main())
