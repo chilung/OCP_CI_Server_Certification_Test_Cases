@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+bios_info
+  1. Use lshw command to gather BIOS information.
+  2. The program will output BIOS vendor, version and release date.
+  3. Criteria: must be able to retrieve BIOS information.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import os
+import sys
+import xml.etree.ElementTree as ET
+from subprocess import check_output
+
+def main():
+    attribute = ['vendor', 'version', 'date']
+    command = 'lshw -xml'
+    with open(os.devnull, "w") as NULL:
+       hwinfo_xml = check_output(command, stderr=NULL, shell=True)
+    root = ET.fromstring(hwinfo_xml)
+
+    # Parse lshw XML for gathering BIOS information.
+    bios_info = root.findall(".//node[@id='firmware']")
+
+    if not bios_info:
+        print("Cannot parse any BIOS information.", file=sys.stderr)
+        return 10
+
+    for bios in bios_info:
+        for attr in attribute:
+            if bios.find(attr) is None:
+                print(("Cannot find BIOS %s") %attr, file=sys.stderr)
+                return 20
+
+        for attr in attribute:
+            if attr == 'date':
+                print(("Release date=\"%s\"") %bios.find(attr).text)
+                continue
+            print(("%s=\"%s\"") %(attr.capitalize(), bios.find(attr).text))
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+disk_info
+  1. Use lshw command to gather disk information.
+  2. The program will output disk type, vendor, product, capacity.
+  3. Criteria: must be able to retrieve disk information.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import sys
+import xml.etree.ElementTree as ET
+from subprocess import Popen, PIPE
+
+def main():
+    attribute = ['description', 'vendor', 'product', 'size']
+    command = 'lshw -xml'
+    hwinfo_xml = Popen(command, stdout=PIPE, stderr=PIPE,
+                       shell=True).communicate()[0]
+    root = ET.fromstring(hwinfo_xml)
+
+    # Parse lshw XML for gathering disk information.
+    disk_list = root.findall(".//node[@class='disk']")
+
+    if not disk_list:
+        print("Cannot parse any disk information.", file=sys.stderr)
+        return 10
+
+    for disk in disk_list:
+        for attr in attribute:
+            if disk.find(attr) is None:
+                print(("Cannot found disk %s") %attr, file=sys.stderr)
+                return 20
+
+        disk_size = int(disk.find('size').text) / (1000**3)
+        for attr in attribute:
+            if attr == 'description':
+                print(("Type=\"%s\"") %disk.find(attr).text)
+                continue
+            elif attr == 'size':
+                print(("%s=\"%dGB\"") %(attr.capitalize(), disk_size))
+                continue
+            else:
+                print(("%s=\"%s\"") %(attr.capitalize(), disk.find(attr).text))
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

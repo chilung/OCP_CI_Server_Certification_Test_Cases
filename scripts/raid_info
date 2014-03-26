@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+# Industrial Technology Research Institute
+#
+#It is NOT YET officially approved by OCP.
+#
+# raid_info
+#   1. Use megasasctl command to gather LSI RAID card information.
+#   2. The program will output adapter, product name, memory, BBU, serial no.
+#   3. Criteria: All information listed in item 2 must have value to show that
+#                RAID card exists.
+#
+# Authors
+#   Nelson Chu <Nelson.Chu@itri.org.tw>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+check_return_code() {
+    if [ "${1}" -ne "0" ]; then
+        echo "ERROR: ${2}" >&2
+        exit ${1}
+    fi
+}
+
+output=`megacli -CfgDsply -Aall|grep -E \
+    'Adapter:|Product Name:|Memory:|BBU:|Serial No:'`
+check_return_code $? "There is no LSI MegaRAID SAS card found."
+
+n=0
+echo "$output" | {
+    while IFS= read -r line; do
+	echo "$line"
+	n=$(($n + 1))
+    done
+
+    if [ "$n" -ne 5 ]; then
+	check_return_code 10 "RAID card attributes are not correct."
+    fi
+
+    exit 0
+}
