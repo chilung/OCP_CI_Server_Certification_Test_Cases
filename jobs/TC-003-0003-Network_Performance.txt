@@ -1,0 +1,8 @@
+plugin: shell
+name: TC-003-0003-001-Network_performance
+user: root
+command: network test -i $NETWORK_INTERFACE -t iperf --target $TARGET_SERVER
+description:
+ 1. Use iperf to test network performance. 
+ 2. Criteria: Network performance must be larger than or equal to 90% of NIC hardware specification.
+              For example the network performance should be no less than 9Gb/s in a 10Gb/s NIC card.

@@ -1,0 +1,7 @@
+plugin: shell
+name: TC-003-0005-001-System_stress
+user: root
+command: system_stress -s 28800
+description:
+ 1. Use google stressapptest tool to perform system stress test for 8 hours.
+ 2. Criteria: pass without MCE error log.

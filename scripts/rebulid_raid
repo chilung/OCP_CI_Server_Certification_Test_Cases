@@ -1,0 +1,280 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+rebulid_raid
+  1. Tests LSI RAID card auto rebuild function.
+  2. Criteria: rebuild RAID successfully.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import os
+import re
+import sys
+import time
+import random
+import logging
+from subprocess import check_output, check_call
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+logFormatter = logging.Formatter(
+    "%(asctime)s [%(levelname)-5.5s] %(funcName)s: %(message)s", 
+    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+
+def get_adapter():
+    """
+    Gather all adapter number if there are multiple RAID card.
+    """
+
+    command = 'megacli -CfgDsply -Aall|grep Adapter'
+    adapter_list = []
+
+    adapter_info = check_output(command, shell=True)
+    adapter_info = adapter_info.decode('utf-8')
+
+    for adapter in adapter_info.strip().split('\n'):
+        adapter_list.append(adapter.strip().split(' ')[-1])
+    logger.debug('adapter_list: %s' %adapter_list)
+    return adapter_list
+
+
+def get_all_disk(adapter):
+    """
+    Gather all disks Enclosure and Slot number, and make a 
+    Enclosure:Slot pair list.
+    """
+
+    command = ('megacli -PDList -A%s|grep -E "Enclosure Device ID|Slot Numbe"' 
+               %adapter)
+    disk_list = []
+    disk_info = check_output(command, shell=True)
+    disk_info = disk_info.decode('utf-8')
+
+    for line in disk_info.strip().split('\n'):
+        if line.startswith('Enclosure'):
+            match = re.search(r'\d+', line)
+            disk_list.append(match.group(0))
+        if line.startswith('Slot'):
+            match = re.search(r'\d+', line)
+            enclosure = disk_list.pop()
+            E_S = '%s:%s' %(enclosure, match.group(0))
+            disk_list.append(E_S)
+
+    logger.debug('adapter: %s, disk_list: %s' %(adapter, disk_list))
+    return disk_list
+
+
+def set_disk_offline(adapter, disk_list):
+    """
+    Use all disk creatd RAID 6 and set last disk as hot spare.
+    """
+
+    # Random offline one disk in disk list.
+    disk = disk_list[random.randint(0, len(disk_list)-1)]
+    command = ('megacli -PDOffline -PhysDrv [%s] -a%s' %(disk, adapter))
+    with open(os.devnull, "w") as NULL:
+        check_call(command, stdout=NULL, stderr=NULL, shell=True)
+    logger.info('Random offline one disk in disk list, Enclosure: %s, Slot: %s' 
+                %(disk.split(':')[0], disk.split(':')[1]))
+
+
+def find_hotspare_disk(adapter):
+    """
+    Find hotspare disk in adapter
+    """
+    command = "megasasctl |grep -E '^a%s.*hotspare'" %adapter
+    output = check_output(command, shell=True)
+    output = output.decode('utf-8')
+    hotspare = output.strip()
+
+    if len(hotspare.split('\n')) != 1:
+        logger.error('Hotspare disk number is not correct.' \
+                         + 'It can be only one hotspare in a ' \
+                         + 'adapter.')
+        return False
+
+    match = re.match(r'a(\d+)e(\d+)s(\d+)',hotspare)
+    if not match:
+        logger.error('Can not found enclosure and slot number of hotspare.')
+        return False
+
+    hotspare_E_S = "%s:%s" %(match.group(2), match.group(3))
+    logger.info('Found hotspare, Enclosure: %s, Slot: %s' 
+                %(match.group(2), match.group(3)))
+    return hotspare_E_S
+
+
+def check_rebuild_status(adapter, spare):
+    command = 'megacli -PDRbld -ShowProg -PhysDrv [%s] -A%s|grep -i rebuild' \
+        %(spare, adapter)
+    output = check_output(command, shell=True)
+    output = output.decode('utf-8')
+    logger.debug('%s' %output.strip())
+
+    match = re.search(r'Completed (\d+)% in (\d+) Minutes', output)
+    if not match:
+        return True
+    return False
+
+
+def all_rebuild_status(adapter_list, spare_dict):
+    for adapter in adapter_list:
+        if not check_rebuild_status(adapter, spare_dict[adapter]):
+            return False
+    return True
+
+
+def confirm_rebuild_status(adapter, spare):
+    enclosure, slot = spare.split(':')
+    command = ("megasasctl|grep -E '^a%se%ss%s'" %(adapter, enclosure, slot))
+    output = check_output(command, shell=True)
+    output = output.decode('utf-8')
+
+    match = re.search(r'online', output)
+    if not match:
+        logger.error('Hotspare status did not change to online. Adapter: %s, ' \
+                         +'Hotspare: [$s:$s]' %(adapter, enclosure, slot))
+        return False
+    return True
+
+
+def run(Adapter= None, Hsp=None, disk_list=None):
+    disk_dict = {}
+    spare_dict = {}
+    adapter_list = []
+    rebuild_status = {}
+
+    try:
+        if Adapter:
+            adapter_list.append(Adapter)
+        else:
+            adapter_list = get_adapter()
+    except Exception as e:
+        logger.error('%s' %e)
+        return 10
+
+    try:
+        if Adapter and disk_list:
+            disk_dict[Adapter] = disk_list
+        else:
+            for adapter in adapter_list:
+                disk_dict[adapter] = get_all_disk(adapter)
+    except Exception as e:
+        logger.error('%s' %e)
+        return 20
+
+    try:
+        if Adapter and Hsp:
+            spare_dict[Adapter] = Hsp
+        else:
+            for adapter in adapter_list:
+                spare_dict[adapter] = find_hotspare_disk(adapter)
+                if not spare_dict[adapter]:
+                    return 30
+    except Exception as e:
+        logger.error('%s' %e)
+        return 40
+
+    try:
+        for adapter in adapter_list:
+            # Remove hotspare disk from disk dict.
+            if spare_dict[adapter] in disk_dict[adapter]:
+                disk_dict[adapter].remove(spare_dict[adapter])
+            set_disk_offline(adapter, disk_dict[adapter])
+    except Exception as e:
+        logger.error('%s' %e)
+        return 50
+
+    # Wait for rebuild process
+    time.sleep(5)
+
+    try:
+        while(True):
+            if not all_rebuild_status(adapter_list, spare_dict):
+                # Check rebuild RAID status every 15 min.
+                time.sleep(900)
+                continue
+            break
+    except Exception as e:
+        logger.error('%s' %e)
+        return 60
+
+    check = 0
+    try:
+        for adapter in adapter_list:
+            if not confirm_rebuild_status(adapter, spare_dict[adapter]):
+                logger.error('Rebuild RAID failed, Adapter: %s, Hotspare: %s' 
+                             %(adapter, spare_dict[adapter]))
+                check = 1
+        if check != 0:
+            return 70
+    except Exception as e:
+        logger.error('%s' %e)
+        return 80
+
+    logger.info('All adapter rebuild RAID successful!')
+    return 0
+
+
+def main():
+    description_text = 'rebulit_raid\n\tTests LSI RAID card auto rebuild ' \
+        + 'function.\n\n\n\tWarning: This program will rebuild RAID ' \
+        + 'automaticity.\n\t\t Please make sure what you are doing!\n\n\n' \
+        + '\tRequirement: It can be only one hotspare in a adapter.'
+
+    parser = ArgumentParser(description=description_text,
+                            formatter_class=RawTextHelpFormatter)
+
+    parser.add_argument('-l', '--log', type=str,
+                      default='/tmp/rebulid_raid.log',
+                      help=('Specify the location and name of the log file.\n'
+                            '[Default: %(default)s]'))
+    parser.add_argument('-P', '--PhysDrv', type=str,
+                        help=('The physical drive enclosure and slot of RAID.'
+                              '\n[Example: --PhysDrv E0:S0,E1:S1,...] '))
+    parser.add_argument('-H', '--Hsp', type=str,
+                        help=('The hotspare\'s enclosure and slot of RAID.'
+                              '\n[Example: --Hsp E0:S0] '))
+    parser.add_argument('-A', '--Adapter', type=str,
+                        help=('The adapter number of RAID card.'
+                              '\n[Example: 0'))
+    args = parser.parse_args()
+
+    file_handler = logging.FileHandler(args.log)
+    file_handler.setFormatter(logFormatter)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logFormatter)
+    console_handler.setLevel(logging.INFO)
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    disk_list = None
+    if args.PhysDrv:
+       disk_list = args.PhysDrv.split(',')
+
+    logger.info('Rebuild process beginning.')
+    return run(args.Adapter, args.Hsp, disk_list)
+
+if __name__ == '__main__':
+    sys.exit(main())

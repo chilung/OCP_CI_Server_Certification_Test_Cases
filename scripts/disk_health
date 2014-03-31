@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+disk_health
+  1. Use smartmontools to monitor disk health.
+  2. SMART threshold, grown defect list (glist or reallocated sectors) 
+     <= 100 for 4TB, glist <=50 for 2TB for all vendors.
+  3. SMART HDD temp <= 60 degrees centigrade.
+  4. Criteria: all threshold must not exceed the criteria listed in item 2 
+               and 3.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import os
+import re
+import sys
+from subprocess import check_output
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+def run(device):
+    return_code = 0
+    command = "smartctl -a {0}".format(device)
+
+    try:
+        with open(os.devnull, "w") as NULL:
+            smartctl_info = check_output(command, stderr=NULL, shell=True)
+    except Exception as e:
+        print(e.output.decode('utf-8'))
+        return_code = 10
+        return return_code
+
+    smartctl_info = smartctl_info.decode('utf-8')
+
+    # Verify disk capacity match the criteria or not.
+    capacity_match =re.search(r'User Capacity.*\[(2|4).*TB\]', smartctl_info)
+    if not capacity_match:
+        print("Disk capacity is not match 2TB or 4TB.")
+        return_code = 20
+        return return_code
+
+    disk_capacity = int(capacity_match.group(1))
+    print("Disk capacity: %dTB" %(disk_capacity))
+
+    # Verify disk temperature match the criteria or not.
+    temperature_match = re.search(r'Temperature_Celsius.*\s(\d+)(\s\(|\n)',
+                                  smartctl_info)
+    if not temperature_match:
+        temperature_match = re.search(r'Current Drive Temperature\D*(\d+)',
+                                      smartctl_info)
+        if not temperature_match:
+            print("Cannot retrieve disk temperature.")
+            return_code = 30
+            return return_code
+
+    disk_temperature = int(temperature_match.group(1))
+    print("Disk current temperature: %d degrees centigrade"
+          %disk_temperature)
+    if disk_temperature > 60:
+        return_code = 40
+
+    # Verify reallocated sectors match the criteria or not.
+    reallocated_sector_match = re.search(r'Reallocated_Sector_Ct.*\s(\d+)\n',
+                                         smartctl_info)
+    if reallocated_sector_match:
+        reallocated_sector = int(reallocated_sector_match.group(1))
+        print("Reallocated_Sector_Ct: %d" %reallocated_sector)
+        if disk_capacity == 2 and reallocated_sector > 50:
+            return_code = 50
+        if disk_capacity == 4 and reallocated_sector > 100:
+            return_code = 60
+
+    # Verify grown defect list match the criteria or not.
+    grown_defect_match = re.search(r'Elements in grown defect list\:\s(\d+)\n',
+                                   smartctl_info)
+    if grown_defect_match:
+        grown_defect_list = int(grown_defect_match.group(1))
+        print("Elements in grown defect list: %d" %grown_defect_list)
+        if disk_capacity == 2 and grown_defect_list > 50:
+            return_code = 70
+        if disk_capacity == 4 and grown_defect_list > 100:
+            return_code = 80
+
+    # Check current pending sectort.
+    current_pending_match = re.search(r'Current_Pending_Sector.*\s(\d+)\n',
+                                      smartctl_info)
+    if current_pending_match:
+        current_pending_sector = int(current_pending_match.group(1))
+        print("Current_Pending_Sector: %d" %current_pending_sector)
+        if current_pending_sector != 0:
+            return_code = 90
+
+    # Check error counter log.
+    total_uncorrected_errors = re.search(
+        r'\nread.*\s(\d+)\nwrite.*\s(\d+)\nverify.*\s(\d+)', smartctl_info)
+    if total_uncorrected_errors:
+        read = int(total_uncorrected_errors.group(1))
+        write = int(total_uncorrected_errors.group(2))
+        verify = int(total_uncorrected_errors.group(3))
+        print("Total uncorrected errors: read=%d write=%d verify=%d"
+              %(read, write, verify))
+        if read != 0 or write != 0 or verify != 0:
+            return_code = 100
+    return return_code
+
+def main():
+    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+    parser.add_argument('-d', '--device', type=str, required=True,
+                        help=("The device that wants to monitor health."))
+    args = parser.parse_args()
+    
+    device = args.device
+    if not device.startswith('/dev/'):
+        device = '/dev/' + device
+
+    return run(device)
+
+if __name__ == '__main__':
+    sys.exit(main())

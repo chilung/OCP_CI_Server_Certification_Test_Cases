@@ -1,0 +1,47 @@
+# Resource Jobs
+block_device
+cdimage
+cpuinfo
+device
+dmi
+dpkg
+efi
+environment
+gconf
+lsb
+meminfo
+module
+optical_drive
+package
+sleep
+uname
+#Info attachment jobs
+__info__
+cpuinfo_attachment
+dmesg_attachment
+dmi_attachment
+dmidecode_attachment
+efi_attachment
+lspci_attachment
+lshw_attachment
+mcelog_attachment
+meminfo_attachment
+modprobe_attachment
+modules_attachment
+sysctl_attachment
+sysfs_attachment
+udev_attachment
+lsmod_attachment
+acpi_sleep_attachment
+info/hdparm
+info/hdparm_.*.txt
+installer_debug.gz
+info/disk_partitions
+# Actual test cases
+__TC-003-0004-Disk_Healthiness__
+TC-003-0004-001-Disk_Health
+TC-003-0004-001-Disk_Health.*
+TC-003-0004-002-Bad_block_test
+TC-003-0004-002-Bad_block_test.*
+__TC-003-0005-System_Stress__
+TC-003-0005-001-System_stress

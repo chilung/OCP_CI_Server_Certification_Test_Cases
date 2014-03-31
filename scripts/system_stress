@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+system_stress
+ 1. Use google stressapptest tool to perform system stress test 
+    for hours requested.
+ 2. Criteria: pass without MCE error log.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import os
+import sys
+from subprocess import check_output, STDOUT, CalledProcessError
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+def run(seconds):
+    return_code = 0
+    command = "stressapptest -s {0} -v 3".format(seconds)
+    try:
+        print("Start stressapptest with commandline: %s" %(command))
+        output = check_output(command, stderr=STDOUT, shell=True)
+        output = output.decode("utf-8")
+        print(output)
+    except CalledProcessError as e:
+        print(e.output.decode("utf-8"))
+        return_code = 10
+
+    try:
+        mcelog_path = "/var/log/mcelog"
+        if os.stat(mcelog_path).st_size != 0:
+            mcelog = open(mcelog_path, "r")
+            print(mcelog.read())
+            mcelog.close()
+            return_code = 20
+    except Exception as e:
+        print(e)
+        print(e.output.decode("utf-8"))
+        return_code = 30
+
+    return return_code
+
+def main():
+    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+
+    parser.add_argument('-s', '--seconds', type=int, required=True,
+                        help=("number of seconds to run."))
+
+    args = parser.parse_args()
+    return run(args.seconds)
+
+if __name__ == '__main__':
+    sys.exit(main())

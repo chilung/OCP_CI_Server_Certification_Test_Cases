@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+read_write_file
+  1. Create one partition and format on disk to test disk I/O.
+  2. Test RAID Read/Write file correctly.
+  3. Criteria: Create/Read/Write file without error.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import os
+import re
+import sys
+import logging
+from subprocess import check_output, check_call, STDOUT
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+log_formatter = '%(asctime)s [%(levelname)-4s] %(funcName)s: %(message)s'
+logging.basicConfig(level=logging.INFO,
+                    format=log_formatter,
+                    datefmt='%Y-%m-%d %H:%M:%S')
+
+
+def read_file_test(mount_point, file_size):
+    command = "dd if={0}/test_file of=/dev/null ".format(mount_point) \
+        + "bs=1M count={0} iflag=direct".format(file_size)
+
+    output = check_output(command, stderr=STDOUT, shell=True)
+    output = output.decode("utf-8")
+
+    match = re.search(r'\((.*)\)\D*(\d+\.\d+)\D*(\d+.*)', output)
+    if not match:
+        logging.error('Does not match patterns of read file test.')
+        return False
+
+    logging.info('Read file successful: %s in %s seconds, speed= %s.'
+                %match.group(1,2,3))
+    return True
+
+
+def write_file_test(mount_point, file_size):
+    command = "dd if=/dev/zero of={0}/test_file ".format(mount_point) \
+        + "bs=1M count={0} oflag=direct".format(file_size)
+
+    output = check_output(command, stderr=STDOUT, shell=True)
+    output = output.decode("utf-8")
+
+    match = re.search(r'\((.*)\)\D*(\d+\.\d+)\D*(\d+.*)', output)
+    if not match:
+        logging.error('Does not match patterns of write file test.')
+        return False
+
+    logging.info('Write file successful: %s in %s seconds, speed= %s.'
+                %match.group(1,2,3))
+    return True
+
+
+def umount_filesystem(mount_point):
+    umount_cmd = "umount {0}".format(mount_point)
+    with open(os.devnull, "w") as NULL:
+        check_call(umount_cmd, stdout=NULL, stderr=NULL, shell=True)
+    logging.debug('Umount %s directory successful.' %mount_point)
+    
+
+def mount_filesystem(device):
+    mount_point = '/mnt/' + os.path.basename(device)
+    if not os.path.exists(mount_point):
+        os.mkdir(mount_point)
+        logging.debug('Create %s directory successful!' %mount_point)
+    else:
+        if os.path.ismount(mount_point):
+            logging.debug('The %s directory is already mounted.' %mount_point)
+            umount_filesystem(mount_point)
+    
+    mount_cmd = "mount {0} {1}".format(device, mount_point)
+    with open(os.devnull, "w") as NULL:
+        check_call(mount_cmd, stdout=NULL, stderr=NULL, shell=True)
+    logging.debug('Mount %s on %s directory successful.' 
+                %(device, mount_point))
+    return mount_point
+
+
+def format_device(device):
+    command = "mkfs.ext4 -F {0}".format(device)
+    logging.debug('Format %s device beginning.' %device)
+    with open(os.devnull, "w") as NULL:
+        check_call(command, stdout=NULL, stderr=NULL, shell=True)
+    logging.debug('Format %s completed successfully.' %device)
+
+
+def run(device, file_size):
+
+    # format device
+    try:
+        format_device(device)
+    except Exception as e:
+        logging.error('%s' %e)
+        return 20
+
+    # mount device on system
+    try:
+        mount_point = mount_filesystem(device)
+    except Exception as e:
+        logging.error('%s' %e)
+        return 30
+
+    # write file test
+    try:
+        if not write_file_test(mount_point, file_size):
+            return 35
+    except Exception as e:
+        logging.error('%s' %e)
+        return 40
+
+    # read file test
+    try:
+        if not read_file_test(mount_point, file_size):
+            return 45
+    except Exception as e:
+        logging.error('%s' %e)
+        return 50
+
+    # umount device
+    try:
+        umount_filesystem(mount_point)
+    except Exception as e:
+        logging.error('%s' %e)
+        return 60
+
+    return 0
+
+
+def main():
+    description_text = 'read_write_file\n\tTest the device read/write file ' \
+        + 'correctly.\n\n\n\tWarning: This program will create one partition' \
+        + ' on device and format it.\n\t\t  Please make sure what you are ' \
+        + 'doing!\n\n\n\tRequirement: Give a device name on the system.'
+
+    parser = ArgumentParser(description=description_text,
+                            formatter_class=RawTextHelpFormatter)
+
+    parser.add_argument('-d', '--device', type=str, required=True,
+                      help=('The device name which used to read write test.\n'
+                            '[Example: sda]'))
+    parser.add_argument('-m', '--megabyte', type=int,
+                        default=5000,
+                        help=('The test file size. [Default: 5GB]'))
+
+    args = parser.parse_args()
+
+    device = args.device
+    if not device.startswith('/dev/'):
+        device = '/dev/' + device
+
+    if not os.path.exists(device):
+        parser.print_help()
+        return 10
+
+    return run(device, args.megabyte)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

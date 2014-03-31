@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+create_raid
+  Use megacli command to build user desired RAID on JBOD.
+
+  Warning: Make sure there is no RAID configuration in LSI RAID card 
+           before this program is performed.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import os
+import re
+import sys
+from time import sleep
+from subprocess import check_output, STDOUT, CalledProcessError
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+def get_adapter():
+    """
+    Gather all adapter number if there are multiple RAID cards.
+    """
+
+    command = 'megacli -CfgDsply -Aall|grep Adapter'
+    adapter_list = []
+
+    adapter_info = check_output(command, shell=True)
+    adapter_info = adapter_info.decode('utf-8')
+
+    for adapter in adapter_info.strip().split('\n'):
+        adapter_list.append(adapter.strip().split(' ')[-1])
+    return adapter_list
+
+
+def get_all_disk(adapter):
+    """
+    Gather all disks Enclosure and Slot number, and make a 
+    Enclosure:Slot pair list.
+    """
+
+    command = 'megacli -PDList -A{0}'.format(adapter) \
+        + '|grep -E "Enclosure Device ID|Slot Number"'
+
+    disk_list = []
+    disk_info = check_output(command, shell=True)
+    disk_info = disk_info.decode('utf-8')
+
+    for line in disk_info.strip().split('\n'):
+        if line.startswith('Enclosure'):
+            match = re.search(r'\d+', line)
+            disk_list.append(match.group(0))
+        if line.startswith('Slot'):
+            match = re.search(r'\d+', line)
+            enclosure = disk_list.pop()
+            E_S = '%s:%s' %(enclosure, match.group(0))
+            disk_list.append(E_S)
+    return disk_list
+
+
+def build_raid(raid_type, adapter, disk_list):
+    """
+    Use all disks creatd RAID.
+    If RAID type is 6 then set last disk as hot spare.
+    """
+
+    if raid_type == 0:
+        disk = ','.join(disk_list)
+        command = 'megacli -CfgLDadd -r{0} [{1}] WB Direct -a{2}'.format(
+            raid_type, disk, adapter)
+
+    if raid_type == 6:
+        # use the last disk as hot spare
+        spare = disk_list.pop()
+
+        disk = ','.join(disk_list)
+        command = 'megacli -CfgLDadd -r{0} [{1}] WB Direct -Hsp[{2}] -a{3}'.format(
+            raid_type, disk, spare, adapter)
+
+    output = check_output(command, stderr=STDOUT, shell=True)
+    output = output.decode('utf-8')
+    # wait for raid created
+    sleep(5)
+    print(output)
+
+
+def main():
+    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+    parser.add_argument('-t', '--type', type=int, required=True,
+                        help=("The RAID type which want to create. "
+                              "[Example: 0 or 6]"))
+    args = parser.parse_args()
+    knox_dict = {}
+
+    # get RAID card adapter number
+    try:
+        adapter_list = get_adapter()
+    except CalledProcessError as e:
+        print(e.output.decode('utf-8'))
+        return 10
+
+    # get all disks in JBOD
+    try:
+        for adapter in adapter_list:
+            knox_dict[adapter] = get_all_disk(adapter)
+    except CalledProcessError as e:
+        print(e.output.decode('utf-8'))
+        return 20
+
+    # use all HDDs to build RAID
+    try:
+        for adapter, disk_list in knox_dict.items():
+            build_raid(args.type, adapter, disk_list)
+    except CalledProcessError as e:
+        print(e.output.decode('utf-8'))
+        return 30
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+bad_block_test
+ 1. Use badblocks command to perform a full disk bad block scan 
+    with given pattern.
+ 2. The duration of the test is under 24 hours.
+ 3. Criteria: pass if no hard disk error.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import os
+import re
+import sys
+from subprocess import check_output, STDOUT
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+def run(pattern, device):
+    return_code = 0
+    command = "badblocks -wsvf -t {0} {1}".format(pattern, device)
+
+    try:
+        with open(os.devnull, "w") as NULL:
+            output = check_output(command, stderr=STDOUT, shell=True)
+            output = output.decode('utf-8')
+    except Exception as e:
+        print(e.output.decode('utf-8'))
+        return_code = 10
+        return return_code
+
+    bad_blocks_match = re.search(r'\n(Pass completed\,\s(\d+)\s.*)\n$', output)
+    if bad_blocks_match:
+        print(bad_blocks_match.group(1))
+        if int(bad_blocks_match.group(2)) != 0:
+            return_code = 20
+    else:
+        print("Cannot parse badblocks output.")
+        return_code = 30
+    return return_code
+
+def main():
+    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+    parser.add_argument('-t', '--pattern', type=str, required=True,
+                        help=("Specify a test pattern to be read \n"
+                              + "(and written) to disk  blocks."))
+    parser.add_argument('-d', '--device', type=str, required=True,
+                        help=("The device which tests in badblocks."))
+    args = parser.parse_args()
+    return run(args.pattern, args.device)
+
+if __name__ == '__main__':
+    sys.exit(main())

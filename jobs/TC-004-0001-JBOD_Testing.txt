@@ -1,0 +1,74 @@
+plugin: shell
+name: TC-004-0001-001-RAID_card_information
+command: echo "refer to TC-003-0001-007"
+description:
+ refers to TC-003-0001-007
+
+plugin: shell
+name: TC-004-0002-001-Get_all_HDD
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+user: root
+command: raid_hdd_info
+description:
+ 1. Use megasasctl command to get all JBOD HDD information.
+ 2. Show total HDD number in JBOD and check disks readiness.
+ 3. Criteria: ensure all JBOD disks information and status are correct.
+
+plugin: shell
+name: TC-004-0003-001-Build_raid_6
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+user: root
+depends: TC-004-0002-001-Get_all_HDD
+command: create_raid -t 6
+description:
+ 1. Use megacli command to build RAID 6 on JBOD from LSI RAID card. 
+ 2. Criteria: pass if the return code is zero.
+
+plugin: shell
+name: TC-004-0003-002-Build_raid_0
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+user: root
+depends: TC-004-0002-001-Get_all_HDD
+command: create_raid -t 0
+description:
+ 1. Use megacli command to build RAID 0 on JBOD from LSI RAID card. 
+ 2. Criteria: pass if the return code is zero.
+
+plugin: shell
+name: TC-004-0004-001-RAID_6_availability_test
+user: root
+depends: TC-004-0003-002-Build_raid_6
+command: raid_availability_test
+description:
+ 1. Create one partition and format on RAID 6 to test disk I/O.
+ 2. Test RAID Read/Write file correctly on JBOD.
+ 3. Criteria: Create/Read/Write file without error.
+
+plugin: shell
+name: TC-004-0004-002-RAID_0_availability_test
+user: root
+depends: TC-004-0003-002-Build_raid_0
+command: raid_availability_test
+description:
+ 1. Create one partition and format on RAID 0 to test disk I/O.
+ 2. Test RAID Read/Write file correctly on JBOD.
+ 3. Criteria: Create/Read/Write file without error.
+
+plugin: shell
+name: TC-004-0005-001-Rebuild_Raid
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+depends: TC-004-0004-001-Read/Write_file
+environ: CHECKBOX_DATA
+user: root
+command: rebulid_raid -l $CHECKBOX_DATA/rebulid_raid.log
+description:
+ 1. Test RAID 6 auto rebuild feature in hot spare mode.
+ 2. Criteria: rebuild RAID 6 successfully.
