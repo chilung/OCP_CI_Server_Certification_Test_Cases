@@ -1,4 +1,4 @@
-###################################################################################################
+##############################################################################################
 Before running ME/BMC test, please fill in related information in configuration file.
 Each section exists in configuration file has its own purpose.
 The following will explain how to fill in settings in each section.
@@ -7,7 +7,7 @@ Note:
 1. Path of configuration file: /etc/checkbox.d/me.cfg
 2. Without these settings pre-setting in configuration file, you won't start tests smoothly.
 
-##################################################################################################
+##############################################################################################
 
 
 ############User manual of each section################
@@ -71,7 +71,7 @@ Please refer to section [Sensors].
 
 
 
-#####################################################################################################################
+##############################################################################################
 The following four sections [Admin Level], [Operator Level], [User Level] and [Add User Test] are for User level test.
 Please refer to TC-002-0009-User_Levels.txt.in. In these four sections, you don't need to modify settings here.
 
