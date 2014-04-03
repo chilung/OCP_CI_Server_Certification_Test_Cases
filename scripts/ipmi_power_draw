@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  ipmi_power_draw  
+  1. GatherRetrieving power draw datainfo via ipmitool
+  2. The datainfo contains "Minimum during sampling period", "Maximum during sampling period", "Average power reading over sample period", "IPMI timestamp", "Sampling period", "Power reading state".
+  3. Criteria: The return value of each item cannot be null
+
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+import sys
+import shlex
+import re
+import time
+import configparser
+import subprocess
+from subprocess import (
+    CalledProcessError,
+    check_call,
+    check_output
+)
+
+def get_power_draw(host_ip, user, password):
+    cmd = 'ipmitool -H {} -U {} -P {} dcmi power reading'.format(host_ip, user, password)
+    output = check_output(shlex.split(cmd), universal_newlines=True)    
+    return output
+
+def power_draw_test(args):
+
+    #Default config file to config requirement info for DCMI in-band/out-of-band access
+    DEFAULT_CFG = "/etc/checkbox.d/me.cfg"
+    if not "config" in vars(args):
+        config_file = DEFAULT_CFG
+    else:
+        config_file = args.config
+
+    config = configparser.RawConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+
+    # Acquire ME IP/Credential parameters from config file
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 20
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 30
+
+    try:
+        user_value = config.get('Account', 'USER')
+        passwd_value = config.get('Account', 'PASSWORD')
+    except configparser.Error:
+        print("Invalid or Empty credential info")
+        return 40
+
+    flag = 0
+    for target in targets_list:
+
+        if not target or not user_value or not passwd_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for DCMI out-of-band access")
+            return 50
+        else:
+            print("SUT =", target)
+
+            try:
+                power_draw_return = get_power_draw(target, user_value, passwd_value)
+                time.sleep(5)
+            except CalledProcessError as command_exception:
+                print("Failed executing dcmi command", command_exception)
+                return 60
+
+            power_list = ['Minimum during sampling period', 'Maximum during sampling period',\
+                      'Average power reading over sample period',\
+                      'IPMI timestamp', 'Sampling period', 'Power reading state is']
+            for i in power_list:
+                value = re.search(i+':\s*([a-zA-Z0-9-: ]+)', power_draw_return)
+                if value == None:
+                    print("{}: Error".format(i))
+                    flag = 1
+                else:
+                    print("{}: {}".format(i, value.group(1)))
+    if flag == 1:
+        return 1
+    return 0
+
+def main():
+    intro_message = "Default config location is /etc/checkbox.d/me.cfg"
+    parser = ArgumentParser(description=intro_message,
+                            formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', default="/etc/checkbox.d/me.cfg",
+                        help="Supply config file for getting authentication info")
+    args = parser.parse_args()
+    return power_draw_test(args)
+
+if __name__ == '__main__':
+    sys.exit(main())

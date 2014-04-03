@@ -1,0 +1,22 @@
+plugin: shell
+name: TC-001-0006-001-Thermal_Monitoring
+requires: package.name == 'dcmitool'
+user: root
+command: dcmi_thermal_ib 
+_description:
+ 1. Retrieve CPU, DIMM, chipset, inlet and outlet temperatures via DCMI in-band access using dcmitool.
+ 2. The motherboard has five thermal sensors: 
+    Two for CPU0 and CPU1 temperatures, 
+    Two for CPU0 DIMM group and CPU1 DIMM group temperatures, 
+    One for PCH temperature, one for Inlet temperature, 
+    One for outlet temperature.
+ 3. Criteria: Must retrieve temperatures from all abovementioned thermal sensors via DCMI in-band access.
+
+plugin: shell
+name: TC-001-0006-002-CPU_Thermal_Throttling_Issue
+user: root
+command: echo "Refers to TC-002-0011-002 System Log Hardware Error"
+_description: 
+ 1. Use dcmitool to retrieve system event log.
+ 2. Verify CPU Thermal Throttling issues by retrieving system event log via dcmitool.
+ 3. Criteria: The CPU throttling log shall not occur during the testing period.

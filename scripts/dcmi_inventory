@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  dcmi_inventory
+  1. Use dcmitool to collect inventory information including Asset Tag, Device ID, System GUI, Firmware/Software Information, Management Controller ID
+  2. Criteria: All information mentioned above must not should not be null
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import sys
+import shlex
+import subprocess
+import re
+import subprocess
+from subprocess import (
+    CalledProcessError,
+    check_call,
+    check_output
+)
+
+def get_asset_tag():
+
+    try:
+        cmd = 'dcmitool dcmi asset_tag'
+        dcmi_asset_tag_return = check_output(shlex.split(cmd), universal_newlines=True)
+        time.sleep(5)
+    except CalledProcessError as command_exception:
+        print("Failed executing dcmi command for getting asset tag. Reason:%s" % command_exception)
+   
+    try:
+        asset_tag = re.search(r'Asset tag\s*:\s*([a-zA-Z0-9-._ ]+)', dcmi_asset_tag_return)
+        if asset_tag == None:
+            return 'Error'
+        return asset_tag.group(1).strip()
+    except:
+        return 'Error'
+
+def get_guid():
+
+    try:
+        cmd = 'dcmitool mc guid'
+        dcmi_guid_return = check_output(shlex.split(cmd), universal_newlines=True)
+        time.sleep(5)
+    except CalledProcessError as command_exception:
+        print("Failed executing dcmi command for getting guid. Reason:%s" % command_exception)
+        
+    try:
+        mcguid = re.search(r'System GUID\s*:\s*([a-zA-Z0-9-._ ]+)', dcmi_guid_return)
+        if mcguid == None:
+            return 'Error'
+        return mcguid.group(1).strip()
+    except:
+        return 'Error'
+    
+def get_mcid():
+
+    try:
+        cmd = 'dcmitool dcmi get_mc_id_string'
+        dcmi_mcid_return = check_output(shlex.split(cmd), universal_newlines=True)
+        time.sleep(5)
+    except CalledProcessError as command_exception:
+        print("Failed executing dcmi command for getting mc id. Reason:%s" % command_exception)
+
+    try:
+        mcid =  re.search(r'Get Management Controller Identifier String\s*:\s*([a-zA-Z0-9-._ ]+)', dcmi_mcid_return)
+        if mcid == None:
+            return 'Error'
+        return mcid.group(1).strip()
+    except:
+        return 'Error'
+
+def get_mcinfo():
+
+    try:
+        cmd = 'dcmitool mc info'
+        dcmi_mcinfo_return = check_output(shlex.split(cmd), universal_newlines=True)
+        time.sleep(5)
+    except CalledProcessError as command_exception:
+        print("Failed executing dcmi command for getting mc info. Reason:%s" % command_exception)
+    
+    try:
+        deviceid = re.search(r'Device ID\s*:\s*([a-zA-Z0-9-._ ]+)', dcmi_mcinfo_return)
+        Manufac = re.search(r'Manufacturer Name\s*:\s*([a-zA-Z-._ ]+)', dcmi_mcinfo_return)
+        Firm = re.search(r'Firmware Revision\s+\s*:\s*([a-zA-Z0-9-._ ]+)', dcmi_mcinfo_return)
+
+        if deviceid == None or Manufac == None or Firm == None:
+            return 'Error', 'Error', 'Error'
+        return (deviceid.group(1).strip(), Manufac.group(1).strip(), Firm.group(1).strip())
+    except:
+        return 'Error', 'Error', 'Error'
+
+def main():
+
+    flag = 0
+    inventory_dict = {}
+    inventory_list = ['Asset Tag', 'System GUID', 'Get Management Controller Identifier String', 'Device ID', 'Manufacturer Name', 'Firmware Revision']
+    Device_ID, Manufacturer, Firmware = get_mcinfo()
+    inventory_dict.update({'Asset Tag':get_asset_tag()})
+    inventory_dict.update({'System GUID':get_guid()})
+    inventory_dict.update({'Get Management Controller Identifier String':get_mcid()})
+    inventory_dict.update({'Device ID':Device_ID})
+    inventory_dict.update({'Manufacturer Name':Manufacturer})
+    inventory_dict.update({'Firmware Revision':Firmware})
+
+    for item in inventory_list:
+        if inventory_dict.get(item) == 'Error':
+            flag = 1
+        else:
+            print("{}: {}".format(item, inventory_dict.get(item)))
+
+    if flag == 1:
+        return 1
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+

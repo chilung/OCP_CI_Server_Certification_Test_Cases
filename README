@@ -1,0 +1,111 @@
+###################################################################################################
+Before running ME/BMC test, please fill in related information in configuration file.
+Each section exists in configuration file has its own purpose.
+The following will explain how to fill in settings in each section.
+
+Note:
+1. Path of configuration file: /etc/checkbox.d/me.cfg
+2. Without these settings pre-setting in configuration file, you won't start tests smoothly.
+
+##################################################################################################
+
+
+############User manual of each section################
+
+######[Targets]######
+For remotely access via IPMI/DCMI, you need to fill in ME/BMC IP address of SUT.
+For example, ME/BMC IP: 10.2.107.5
+[Targets]
+Target1: 10.2.107.5
+
+######[Account]######
+For remotely access via IPMI/DCMI, you need to fill in ME/BMC account here.
+For example, USER/PASSWORD: OCP/OCP. Then, the settings in this section must be
+[Account]
+USER: OCP
+PASSWORD: OCP
+
+######[Sensors] and [SensorsForCPUTemp]######
+For thermal tests of ME/BMC sensors, you need to check and set Sensor ID before starting tests.
+Refers to TC-001-0006-Hardware_Monitoring.txt.in,
+there are five kinds of sensors to monitor, so please write corresponding sensor ID to this field.
+For example, the sensor ID related to these five kinds of sensors on Winterfell
+are "outlet Temp", "inlet Temp", "PCH Temp", "P0 DIMM Temp", "P1 DIMM Temp", "P0 Therm Margin",
+"P1 Therm Margin", "CPU0 Tjmax", "CPU1 Tjmax"
+[Sensors]
+Outlet: Outlet Temp
+Inlet: Inlet Temp
+PCH: PCH Temp
+Px DIMM: P0 DIMM Temp
+Py DIMM: P1 DIMM Temp
+CPUx: CPU0 Temp
+CPUy: CPU1 Temp
+
+Note:
+        Case1. There are CPU sensors to monitor CPU temperature directly.
+               You just fill in sensor IDs behind key "CPUx" and "CPUy" and
+               don't care the section [SensorsForCPUTemp] at all.
+        Case2. There are no CPU sensors to monitor CPU temperature directly.
+               CPUx temperature is derived from Px Therm Margin and CPUx Tjmax.
+               ie,"CPU0 Temp" = "P0 Therm Margin" + "CPU0 Tjmax"
+               (It still requires "PU0 Temp" marked behind key "CPUx")
+               Besides, please also fill in "P0 Therm Margin", "PU0 Tjmax"
+               to corresponding section presented as below.
+               [SensorsForCPUTemp]
+               Px Therm Margin: P0 Therm Margin
+               Py Therm Margin: P1 Therm Margin
+               CPUx Tjmax: CPU0 Tjmax
+               CPUy Tjmax: CPU1 Tjmax
+
+
+######[SensorsForSampling]######
+Refers to test case TC-002-0008-001-Temp_Sampling_Increment, the description is to retrieve CPU and intake temperature 30 times.
+For example, the related sensor IDs on Winterfell are "Inlet Temp", "P0 Therm Margin", "P1 Therm Margin", "CPU0 Tjmax", "CPU1 Tjmax".
+[SensorsForSampling]
+Inlet: Inlet Temp
+CPUx: CPU0 Temp
+CPUy: CPU1 Temp
+Note: if the CPU0 temperature derives from "P0 therm Margin" and "CPU0 Tjmax",
+you have to give a string "CPU0 temp" behind key "CPUx". And also remember to fill in the sensor ID in section [SensorsForCPUTemp].
+Please refer to section [Sensors].
+
+
+
+#####################################################################################################################
+The following four sections [Admin Level], [Operator Level], [User Level] and [Add User Test] are for User level test.
+Please refer to TC-002-0009-User_Levels.txt.in. In these four sections, you don't need to modify settings here.
+
+######[Admin Level]######
+[Admin Level]
+ADMIN_NAME: ccma_admin
+ADMIN_PASSWD: ccma_admin
+priv_level: 4
+user_id: 3
+channel_num: 1
+Note: But please set the settings in the section using ipmitool/dcmitool manually on SUT before starting user level test.
+
+######[Operator Level]######
+[Operator Level]
+OPER_NAME: ccma_oper
+OPER_PASSWD: ccma_oper
+priv_level: 3
+user_id: 4
+channel_num: 1
+Note: But please set the settings in the section using ipmitool/dcmitool manually on SUT before starting user level test.
+
+######[User Level]######
+[User Level]
+USER_NAME: ccma_user
+USER_PASSWD: ccma_user
+priv_level: 2
+user_id: 5
+channel_num: 1
+Note: But please set the settings in the section using ipmitool/dcmitool manually on SUT before starting user level test.
+
+
+######[Add User Test]######
+[Add User Test]
+NEW_USER_NAME: ccma_test
+NEW_USER_ID: 6
+Note: Do not need to create this account manually
+

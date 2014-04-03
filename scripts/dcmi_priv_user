@@ -1,0 +1,174 @@
+#! /usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  dcmi_priv_uesr  
+  1. Use dcmitool out-of-band to read power status, to perform power reset and add a new user account
+  2. Criteria: power status reading must be successful and must fail at power reset and adding a new user account
+
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+
+import sys
+import configparser
+import shlex
+import subprocess
+import ast
+import time
+from subprocess import (
+    check_output,
+    CalledProcessError
+)
+
+def get_power_status(host_ip, user, password):
+    cmd_status = 'dcmitool -H {} -U {} -P {} power status 1>/dev/null 2>/dev/null'\
+        .format(host_ip, user, password)
+    status_code = subprocess.call(cmd_status, shell=True)
+    return status_code
+    
+def power_reset(host_ip, user, password):
+    cmd_reset = 'dcmitool -H {} -U {} -P {} power reset 1>/dev/null 2>/dev/null'\
+        .format(host_ip, user, password)
+    reset_code = subprocess.call(cmd_reset, shell=True)
+    return reset_code
+
+def add_user(host_ip, user, password, new_id, new_user):
+    cmd_add_user = 'dcmitool -H {} -U {} -P {} user set name {} {} 1>/dev/null 2>/dev/null'\
+        .format(host_ip, user, password, new_id, new_user)
+    add_user_code = subprocess.call(cmd_add_user, shell=True)
+    return add_user_code
+
+def dcmi_user_level_test(args):
+
+    #DCMI config file
+    DEFAULT_CFG = "/etc/checkbox.d/me.cfg"
+    if not "config" in vars(args):
+        config_file = DEFAULT_CFG
+    else:
+        config_file = args.config
+    config = configparser.RawConfigParser()
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 20
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 20
+
+    try:
+        user_value = config.get("User Level", "USER_NAME")
+        password_value = config.get("User Level", "USER_PASSWD")
+    except configparser.NoOptionError:
+        print("Invalid or Empty credential info")
+        print("Require User Level info pre-configured in /etc/checkbox.d/me.cfg")
+        return 30
+
+    try:
+        new_user_value = config.get("Add User Test", "NEW_USER_NAME")
+        new_user_id_value = config.get("Add User Test", "NEW_USER_ID")
+    except configparser.NoOptionError:
+        print("Invalid or Empty new user info")
+        print("Require new User info pre-configured in /etc/checkbox.d/me.cfg")
+        return 40
+
+    flag = 0
+    for tg in targets_list:
+
+        if not tg or not user_value or not password_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for DCMI out-of-band access")
+            return 50
+        else:
+            print("SUT", tg)
+
+            ping_result = ping_test(tg)
+            if ping_result != 0:
+                return 88
+
+            status_result = get_power_status(tg, user_value, password_value)
+            time.sleep(5)
+
+            reset_result = power_reset(tg, user_value, password_value)
+            time.sleep(5)
+            if not new_user_value or not new_user_id_value:
+                print("Require new user info pre-configured in /etc/checkbox.d/me.cfg")
+                return 60
+            else:
+
+                ping_result = ping_test(tg)
+                if ping_result != 0:
+                    return 88
+
+                add_user_result = add_user(tg, user_value, password_value, new_user_id_value, new_user_value)
+                time.sleep(5)
+
+            if status_result == 0 and reset_result == 1 and add_user_result == 1:
+                print("User can read power status.")
+                print("User can't reset power.")
+                print("User can't add a new user.")
+            else:
+                print("Authentication: Not User Level")
+                flag = 1
+
+    if flag == 1:
+        return 100
+    return 0
+
+def ping_test(host_ip):
+    count = 0
+    while count < 10:
+        ping_cmd = 'ping -c 1 {}>/dev/null 2>/dev/null'.format(host_ip)
+        ping_rtn = subprocess.call(ping_cmd, shell=True)
+        if ping_rtn == 0:
+            return 0
+        else:
+            print("Destination Host Unreachable")
+            time.sleep(10)
+            count = count+1
+
+    if count == 10:
+        print("Host Has No Response, End of Test")
+        return 1
+
+
+def main():
+
+    intro_message = "Default config location is /etc/checkbox.d/me.cfg"
+    parser = ArgumentParser(description=intro_message, formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', type=str,
+		 default="/etc/checkbox.d/me.cfg",
+		 help="Supply config file for getting authentication info")
+    args = parser.parse_args()
+    return dcmi_user_level_test(args)
+
+if __name__ == "__main__":
+    sys.exit(main())

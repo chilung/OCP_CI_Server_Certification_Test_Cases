@@ -1,0 +1,19 @@
+plugin: shell
+name: TC-002-0010-001-Inventory_Infomation
+requires: package.name == 'dcmitool'
+user: root
+command: dcmi_inventory
+_description: 
+ 1. Use dcmitool to collect inventory information including Asset Tag, Device ID, System GUI, Firmware/Software Information, Management Controller ID
+ 2. Criteria: All information mentioned above must not should not be null
+
+plugin: shell
+name: TC-002-0010-002-FRU
+requires: package.name == 'ipmitool'
+user: root
+command: ipmi_fru
+_description: 
+ 1. Use ipmitool to retrieve FRU data.
+ 2. The data contains product manufacture, product part number, product serial number, motherboard serial number.
+ 3. Criteria: Above All data mentioned above must notshould not be null
+

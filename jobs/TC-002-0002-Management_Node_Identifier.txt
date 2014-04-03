@@ -1,0 +1,6 @@
+plugin: shell
+name: TC-002-0002-001-Management_Node_Identifier
+requires: package.name == 'dcmitool'
+user: root
+command: echo "Refer to TC-002-0010-001 Inventory Information." 
+_description: Retrieve GUID using dcmitool

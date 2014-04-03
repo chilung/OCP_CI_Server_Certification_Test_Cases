@@ -1,0 +1,15 @@
+plugin: shell
+name: TC-001-0007-001-In_band_Power_and_Thermal_Monitoring
+requires: package.name == 'dcmitool'
+user: root
+command: echo "Refers to TC-001-0006-001 Thermal Monitoring."
+_description: 
+ 1. Retrieve CPU, DIMM, chipset, inlet and outlet temperatures via DCMI in-band access using dcmitool.
+ 2. The motherboard has five thermal sensors:
+    Two for CPU0 and CPU1 temperatures,
+    Two for CPU0 DIMM group and CPU1 DIMM group temperatures,
+    One for PCH temperature, one for Inlet temperature,
+    One for outlet temperature.
+ 3. Criteria: Must retrieve temperatures from all abovementioned thermal sensors via DCMI in-band access.
+
+

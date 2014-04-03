@@ -1,0 +1,9 @@
+plugin: shell
+name: TC-002-0007-001-Power_Draw
+requires: package.name == 'ipmitool'
+user: root
+command: ipmi_power_draw
+_description:
+ 1. Gather power draw data via ipmitool
+ 2. The data contains "Minimum during sampling period", "Maximum during sampling period", "Average power reading over sample period", "IPMI timestamp", "Sampling period", "Power reading state".
+ 3. Criteria: The return value of each item cannot be null

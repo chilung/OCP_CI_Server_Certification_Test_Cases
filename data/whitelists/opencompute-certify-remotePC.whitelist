@@ -1,0 +1,51 @@
+## This whitelist is intended for use inside Canonical's test labs.  The tests
+## conained in this list are the same as those contained in the
+## server-selftest.whitelist file that OEMs may use. The difference here is that
+## some of these tests depend on a specific network environment and may not run
+## properly in your test environment.  To avoid false failures, please use the 
+## server-selftest.whitelist instead.
+# Resource Jobs
+block_device
+cdimage
+cpuinfo
+device
+dmi
+dpkg
+efi
+environment
+gconf
+lsb
+meminfo
+module
+optical_drive
+package
+sleep
+uname
+#Info attachment jobs
+__info__
+cpuinfo_attachment
+dmesg_attachment
+dmi_attachment
+dmidecode_attachment
+efi_attachment
+lspci_attachment
+meminfo_attachment
+modprobe_attachment
+modules_attachment
+sysctl_attachment
+sysfs_attachment
+udev_attachment
+lsmod_attachment
+acpi_sleep_attachment
+info/hdparm
+info/hdparm_.*.txt
+installer_debug.gz
+info/disk_partitions
+# Actual test cases
+__TC-002-0006-Remotely_Power_Control__
+TC-002-0006-001-Remotely_Power_Off_and_On
+TC-002-0006-002-Remotely_Power_Reset
+__TC-002-0009-User_Levels__
+TC-002-0009-001-BMC_Account_Privilege_Verify-User
+TC-002-0009-002-BMC_Account_Privilege_Verify-Operator
+TC-002-0009-003-BMC_Account_Privilege_Verify-Administrator

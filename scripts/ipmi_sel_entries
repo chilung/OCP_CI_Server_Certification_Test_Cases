@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications 
+Industrial Technology Research Institute
+
+File Name
+  ipmi_sel_entries
+  1. Use ipmitool to collect event log information
+  2. Calculate entries number of system event log
+  3. Criteria: the A log must be capable of saving at least 256 entries
+
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+import sys
+import time
+import shlex
+import re
+import subprocess
+from subprocess import (
+    CalledProcessError,
+    check_call,
+    check_output
+)
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+import configparser
+
+#Retrieve entries number that already used
+def get_entry_used(output):
+    entry_used = re.search(r'Entries\D*([0-9 ]+)', output)
+    return entry_used.group(1).strip()
+
+#Retrieve free entries that available
+def get_entry_free(output):
+    entry_free = re.search(r'# Free Units\D*([0-9 ]+)', output)
+    return entry_free.group(1).strip()
+
+#Use ipmitool to retrieve sel information
+def get_sel_info(host_ip, user, password):
+    cmd = 'ipmitool -H {} -U {} -P {} sel'.format(host_ip, user, password)
+    ipmi_sel_return = check_output(shlex.split(cmd), universal_newlines=True)
+    return ipmi_sel_return
+
+def sel_entry_test(args):
+
+    #Default config file to config requirement info for DCMI in-band/out-of-band access 
+    DEFAULT_CFG = "/etc/checkbox.d/me.cfg"
+    if not "config" in vars(args):
+        config_file = DEFAULT_CFG
+    else:
+        config_file = args.config
+
+    config = configparser.RawConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+    
+    # Acquire ME IP/Credential parameters from config file
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 20
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 30
+
+    try:
+        user_value = config.get('Account', 'USER')
+        passwd_value = config.get('Account', 'PASSWORD')
+    except configparser.Error:
+        print("Invalid or Empty credential info")
+        return 40
+
+    for target in targets_list:
+
+        if not target or not user_value or not passwd_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for DCMI out-of-band access")
+            return 50
+        else:
+            print("SUT =", target)
+
+            try:
+                sel_return = get_sel_info(target, user_value, passwd_value)
+                time.sleep(5)
+            except CalledProcessError as command_exception:
+                print("Failed executing ipmi command, Reason: %s." %(command_exception))
+                return 60
+
+            try:
+                print("Used Entry:", int(get_entry_used(sel_return)))
+                print("Free Entry:", int(get_entry_free(sel_return)))
+            except:
+                print("Error to parse SEL info")
+                return 70
+
+            try:
+                entry_space = int(get_entry_used(sel_return))+int(get_entry_free(sel_return))
+            except ArithmeticError:
+                print("Arithmetic Error")
+                return 80
+
+            if entry_space < 256:
+                print("Entries Number:", int(entry_space), "Entries Number is less than 256")
+                return 90
+            else:
+                print("Entries Number of SUT is more than 256.")
+    return 0
+
+def main():
+
+    intro_message = "Default config location is /etc/checkbox.d/me.cfg"
+    parser = ArgumentParser(description=intro_message,
+                            formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', default="/etc/checkbox.d/me.cfg",
+                        help="Supply config file for getting authentication info")
+    args = parser.parse_args()
+    return sel_entry_test(args)
+
+if __name__ == "__main__":
+    sys.exit(main())

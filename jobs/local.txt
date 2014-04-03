@@ -631,80 +631,73 @@ command:
 
 name: __TC-001-0006-Hardware_Monitoring__
 plugin: local
-description: Hardware Monitoring via DCMI
+_description: Hardware Monitoring via DCMI
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-001-0006-Hardware_Monitoring.txt?(.in)
 
 name: __TC-001-0007-In_band_Platform_Controller_Hub_Management_Engine__
 plugin: local
-description: Platform Controller Hub Management Engine via in-band
+_description: Platform Controller Hub Management Engine via in-band
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-001-0007-In_band_Platform_Controller_Hub_Management_Engine.txt?(.in)
 
 name: __TC-001-0008-Out_of_band_Platform_Controller_Hub_Management_Engine__
 plugin: local
-description: Platform Controller Hub Management Engine via out-band
+_description: Platform Controller Hub Management Engine via out-band
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-001-0008-Out_of_band_Platform_Controller_Hub_Management_Engine.txt?(.in)
 
 name: __TC-002-0002-Management_Node_Identifier__
 plugin: local
-description: Management Node Identifier
+_description: Management Node Identifier
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-002-0002-Management_Node_Identifier.txt?(.in)
 
-name: __TC-002-0003-Rights_and_Credentials__
-plugin: local
-description: Rights and Credentials
-command:
-  shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/TC-002-0003-Rights_and_Credentials.txt?(.in)
-
 name: __TC-002-0006-Remotely_Power_Control__
 plugin: local
-description: Power Control Remote Server
+_description: Power Control Remote Server
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-002-0006-Remotely_Power_Control.txt?(.in)
 
 name: __TC-002-0007-Power_Draw__
 plugin: local
-description: Power Draw
+_description: Power Draw
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-002-0007-Power_Draw.txt?(.in)
 
 name: __TC-002-0008-Temperature__
 plugin: local
-description: Temperature
+_description: Temperature
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-002-0008-Temperature.txt?(.in)
 
 name: __TC-002-0009-User_Levels__
 plugin: local
-description: BMC User Levels
+_description: BMC User Levels
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-002-0009-User_Levels.txt?(.in)
 
 name: __TC-002-0010-Inventory__
 plugin: local
-description: Information for remotely configuration
+_description: Information for remotely configuration
 command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-002-0010-Inventory.txt?(.in)
 
 name: __TC-002-0011-System_Log__
 plugin: local
-description: System Event Log
+_description: System Event Log
 command:
-  shopt -s extglob
-  cat $CHECKBOX_SHARE/jobs/TC-002-0011-System_Log.txt?(.in)
+ shopt -s extglob
+ cat $CHECKBOX_SHARE/jobs/TC-002-0011-System_Log.txt?(.in)
 
 name: __TC-003-0001-Hardware_Information__
 plugin: local

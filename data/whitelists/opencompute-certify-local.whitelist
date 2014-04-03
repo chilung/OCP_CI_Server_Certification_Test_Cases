@@ -55,8 +55,6 @@ __TC-001-0007-In_band_Platform_Controller_Hub_Management_Engine__
 TC-001-0007-001-In_band_Power_and_Thermal_Monitoring
 __TC-002-0002-Management_Node_Identifier__
 TC-002-0002-001-Management_Node_Identifier
-#__TC-002-0007-Power_Draw__
-#TC-002-0007-001-Power_Draw
 __TC-002-0010-Inventory__
 TC-002-0010-001-Inventory_Infomation
 __TC-003-0001-Hardware_Information__

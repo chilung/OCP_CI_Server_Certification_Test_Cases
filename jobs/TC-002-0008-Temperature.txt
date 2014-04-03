@@ -1,0 +1,8 @@
+plugin: shell
+name: TC-002-0008-001-Temp_Sampling_Increment
+requires: package.name == 'dcmitool'
+user: root
+command: dcmi_sampling
+_description: 
+ 1. Retrieve CPU and intake temperature 30 times at 3 second intervals using dcmitool
+ 2. If failed to retrieve temperature at any time within 30 times, the test is considered failed

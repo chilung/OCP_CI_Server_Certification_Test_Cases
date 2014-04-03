@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  ipmi_fru
+  1. Use ipmitool to retrieve FRU data.
+  2. The data contains product manufacture, product part number, product serial number, motherboard serial number.
+  3. Criteria: Above All data mentioned above must notshould not be null
+
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+
+import sys
+import shlex
+import time
+import subprocess
+from subprocess import (
+    check_output,
+    CalledProcessError
+)
+import re
+import configparser
+
+def get_system_manufacturer(output):
+    system_manufacture = re.search(r'Product Manufacturer\s*:\s*([a-zA-Z0-9-._ ]+)', output)
+    if system_manufacture  == None:
+        return 'Error'
+    else:
+        return system_manufacture.group(1).strip()
+
+def get_system_part_number(output):
+    system_part_number = re.search(r'Product Part Number\s*:\s*([a-zA-Z0-9-._ ]+)', output)
+    if system_part_number == None:
+        return 'Error'
+    else:
+        return system_part_number.group(1).strip()
+    
+def get_system_serial_number(output):
+    system_serial_number = re.search(r'Product Serial\s*:\s*([a-zA-Z0-9-._ ]+)', output)
+    if system_serial_number == None:
+        return 'Error'
+    else:
+        return system_serial_number.group(1).strip()
+
+def get_board_serial_number(output):
+    board_serial_number = re.search(r'Board Serial\s*:\s*([a-zA-Z0-9-._ ]+)', output)
+    if board_serial_number == None:
+        return 'Error'
+    else:
+        return board_serial_number.group(1).strip()
+
+def get_fru_info(host_ip, user, password):
+    fru_cmd = 'ipmitool -H {} -U {} -P {} fru'.format(host_ip, user, password)
+    fru_return = check_output(shlex.split(fru_cmd), universal_newlines=True)
+    return fru_return
+
+def ipmi_fru(args):
+    #DCMI config file
+    DEFAULT_CFG = "/etc/checkbox.d/me.cfg"
+
+    if not "config" in vars(args):
+        config_file = DEFAULT_CFG
+    else:
+        config_file = args.config
+
+    config = configparser.RawConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 20
+
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 30
+
+    try:
+        user_value = config.get('Account', 'USER')
+        passwd_value = config.get('Account', 'PASSWORD')
+        if not user_value or not passwd_value:
+            print("Invalid or Empty credential info")
+            return 40
+
+    except configparser.Error:
+        print("Invalid or Empty credential info")
+        return 50
+
+    inevntory_fru = {}
+    flag = 0
+    for tg in targets_list:
+            
+        if not tg or not user_value or not passwd_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for DCMI out-of-band access")
+            return 60
+        else:
+            print("SUT =", tg)
+            try:
+                fru_data = get_fru_info(tg, user_value, passwd_value)
+                time.sleep(5)
+            except CalledProcessError as ipmi_exception:
+                print("Failed executing ipmi, Reason: %s" % ipmi_exception)
+                return 70
+
+            inevntory_fru.update({'Product Manufacturer':get_system_manufacturer(fru_data)})
+            inevntory_fru.update({'Product Part Number':get_system_part_number(fru_data)})
+            inevntory_fru.update({'Product Serial':get_system_serial_number(fru_data)})
+            inevntory_fru.update({'Board Serial':get_board_serial_number(fru_data)})
+    
+            inevntory_fru_list = ['Product Manufacturer', 'Product Part Number', 'Product Serial', 'Board Serial']
+            for item in inevntory_fru_list:
+                print("{}: {}".format(item, inevntory_fru.get(item)))
+                if inevntory_fru.get(item) == 'Error':
+                    flag = 1
+    if flag == 1:
+        return 100
+    return 0
+
+def main():
+    intro_message = "Default config location is /etc/checkbox.d/me.cfg"
+    parser = ArgumentParser(description=intro_message,
+                            formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', type=str,
+                        default="/etc/checkbox.d/me.cfg",
+                        help="Supply config file for getting authentication info")
+    args = parser.parse_args()
+    return ipmi_fru(args)
+
+if __name__ == '__main__':
+    sys.exit(main())

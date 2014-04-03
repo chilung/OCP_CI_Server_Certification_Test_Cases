@@ -1,0 +1,16 @@
+plugin: shell
+name: TC-001-0008-001-Out_of_band_Power_and_Thermal_Monitoring
+requires: package.name == 'dcmitool'
+user: root
+command: dcmi_thermal_oob
+_description: 
+ 1. Retrieving CPU, DIMM, chipset, inlet, outlet temperature via DCMI out-of-band access using dcmitool.
+ 2. The motherboard has five thermal sensors: Two for CPU0 and CPU1 temperatures,
+    Two for CPU0 DIMM group and CPU1 DIMM group temperatures,
+    One for PCH temperature,
+    One for Inlet temperature,
+    One for outlet temperature.
+ 3. Criteria: Must retrieve temperatures from all abovementioned thermal sensors via DCMI out-of-band access.
+
+
+
