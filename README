@@ -1,3 +1,23 @@
+############User manual and installation guide################
+Note: Please use Ubuntu 12.04 or lately.
+      The shell script will install OCP checkbox automatically.
+
+######[Download OCP C&I Server Certification Test Cases]######
+$ git clone https://github.com/chilung/OCP_CI_Server_Certification_Test_Cases.git
+
+######[Installation]######
+$ sudo ./install.sh
+
+######[Run Checkbox]######
+$ sudo checkbox-ocp-cli -W [the path of whitelists]
+
+Example: sudo checkbox-ocp-cli -W /usr/share/checkbox/data/whitelists/opencompute-certify-basic.whitelist
+
+######[Important directory]######
+Jobs:       /usr/share/checkbox/jobs/
+scripts:    /usr/share/checkbox/scripts/
+whitelist:  /usr/share/checkbox/data/whitelists/
+
 ##############################################################################################
 Before running ME/BMC test, please fill in related information in configuration file.
 Each section exists in configuration file has its own purpose.
