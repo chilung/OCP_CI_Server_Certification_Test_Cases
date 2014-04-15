@@ -201,9 +201,9 @@ def dcmi_sdr(args):
 
 def main():
 
-    intro_message = "Default config location is /etc/checkbox.d/"
+    intro_message = "Default config location is /etc/checkbox.d/me.cfg"
     parser = ArgumentParser(description=intro_message, formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--config', type=str, default="/etc/checkbox.d/", help="Supply config file for sensor IDs parameters")
+    parser.add_argument('--config', type=str, default="/etc/checkbox.d/me.cfg", help="Supply config file for sensor IDs parameters")
     args = parser.parse_args()
     return dcmi_sdr(args)
 
