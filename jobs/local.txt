@@ -729,3 +729,44 @@ command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-004-0001-JBOD_Testing.txt?(.in)
 
+name: __TC-005-0001-CPU_Memory__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-005-0001-CPU_Memory.txt?(.in)
+
+name: __TC-005-0002-Platform_Controller_Hub__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-005-0002-Platform_Controller_Hub.txt?(.in)
+
+name: __TC-007-0001-System_Information__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-007-0001-System_Information?(.in)
+
+name: __TC-007-0002-Network_Interface_Controller__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-007-0002-Network_Interface_Controller.txt?(.in)
+
+name: __TC-007-0003-Hard_Disk_Drive__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-007-0003-Hard_Disk_Drive.txt?(.in)
+
+name: __TC-007-0004-System_Idle_and_Stress_Test__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-007-0004-System_Idle_and_Stress_Test.txt?(.in)
+
+name: __TC-007-0005-JBOD_Testing__
+plugin: local
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-007-0005-JBOD_Testing.txt?(.in)

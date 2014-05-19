@@ -1,0 +1,35 @@
+plugin: shell
+name: TC-005-0001-001-CPU_Information
+requires: package.name == 'lshw'
+user: root
+command: cpu_info -p Xeon -f E5
+description:
+ This test case is used for test leopard.
+ 1. Use lshw command to gather CPU information.
+ 2. The program will output CPU model and L1, L2, L3 cache size.
+ 3. Criteria: CPU model must be Intel Xeon processor E5-2600 product family and L3 cache size must be up to 20MB.
+
+
+plugin: shell
+name: TC-005-0001-002-Processor_Topology
+command: processor_topology
+description:
+ This test case is used for test leopard will check CPU topology for accuracy.
+ 1. Use lscpu command to gather CPU information.
+ 2. The program will output the total number of CPUs, the number of threads per core, the number of cores per socket, and the number of sockets.
+ 3. Criteria: It should be 8-12 cores per CPU and 2 threads per core.
+
+
+plugin: shell
+name: TC-005-0001-003-Memory_Information
+requires: package.name == 'lshw'
+user: root
+command: memory_info
+description:
+ This test case is used for test leopard.
+ 1. Use lshw command to gather memory information.
+ 2. Testing prerequisites:
+    4 channels DDR3 registered memory interface on each processor 0 and processor 1.
+    2 DDR3 slots per channel per processor. (total of 16 DIMMs on the motherboard)
+ 3. The program will output memory module, vendor, size and slot.
+ 4. Criteria: Total of 16 DIMMs on the motherboard.

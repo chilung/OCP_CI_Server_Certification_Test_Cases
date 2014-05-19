@@ -1,0 +1,74 @@
+plugin: shell
+name: TC-007-0005-001-Get_All_HDDs
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+user: root
+command: raid_hdd_info
+description:
+ This test case is used for test leopard.
+ 1. Use megasasctl command to get all JBOD HDD information.
+ 2. Show total HDD number in JBOD and check disks readiness.
+ 3. Criteria: ensure all JBOD disks information and status are correct.
+
+plugin: shell
+name: TC-007-0005-002-Build_RAID_6
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+user: root
+depends: TC-007-0005-001-Get_All_HDDs
+command: create_raid -t 6
+description:
+ This test case is used for test leopard.
+ 1. Use megacli command to build RAID 6 on JBOD from LSI RAID card. 
+ 2. Criteria: pass if the return code is zero.
+
+plugin: shell
+name: TC-007-0005-003-Build_RAID_0
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+user: root
+depends: TC-007-0005-001-Get_All_HDDs
+command: create_raid -t 0
+description:
+ This test case is used for test leopard.
+ 1. Use megacli command to build RAID 0 on JBOD from LSI RAID card. 
+ 2. Criteria: pass if the return code is zero.
+
+plugin: shell
+name: TC-007-0005-004-RAID_6_Availability_Test
+user: root
+depends: TC-007-0005-002-Build_RAID_6
+command: raid_availability_test
+description:
+ This test case is used for test leopard.
+ 1. Create one partition and format on RAID 6 to test disk I/O.
+ 2. Test RAID Read/Write file correctly on JBOD.
+ 3. Criteria: Create/Read/Write file without error.
+
+plugin: shell
+name: TC-007-0005-005-RAID_0_Availability_Test
+user: root
+depends: TC-007-0005-003-Build_RAID_0
+command: raid_availability_test
+description:
+ This test case is used for test leopard.
+ 1. Create one partition and format on RAID 0 to test disk I/O.
+ 2. Test RAID Read/Write file correctly on JBOD.
+ 3. Criteria: Create/Read/Write file without error.
+
+plugin: shell
+name: TC-007-0005-006-Rebuild_RAID_6
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+depends: TC-007-0005-004-RAID_6_Availability_Test
+environ: CHECKBOX_DATA
+user: root
+command: rebulid_raid -l $CHECKBOX_DATA/rebulid_raid.log
+description:
+ This test case is used for test leopard.
+ 1. Test RAID 6 auto rebuild feature in hot spare mode.
+ 2. Criteria: rebuild RAID 6 successfully.

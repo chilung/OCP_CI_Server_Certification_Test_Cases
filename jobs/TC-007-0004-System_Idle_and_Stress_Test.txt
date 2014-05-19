@@ -1,0 +1,8 @@
+plugin: shell
+name: TC-007-0004-002-System_Stress
+user: root
+command: system_stress -s 28800
+description:
+ This test case is used for test leopard.
+ 1. Use google stressapptest tool to perform system stress test for 8 hours.
+ 2. Criteria: pass without MCE error log.

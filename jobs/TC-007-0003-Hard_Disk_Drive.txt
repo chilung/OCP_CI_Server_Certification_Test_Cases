@@ -1,0 +1,42 @@
+plugin: local
+name: TC-007-0003-001-HDD_Healthiness
+requires:
+ package.name == 'smartmontools'
+ device.category == 'DISK'
+command:
+ cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
+ plugin: shell
+ name: TC-007-0003-001-Disk_Health_`ls /sys$path/block`
+ requires:
+  device.path == "$path"
+  block_device.`ls /sys$path/block`_state != 'removable'
+ description:
+  This test case is used for test leopard.
+  1. Use smartmontools to monitor disk health.
+  2. SMART threshold, grown defect list (glist or reallocated sectors) <= 100 for 4TB, glist <=50 for 2TB for all vendors.
+  3. SMART HDD temp <= 60 degrees centigrade.
+  4. Criteria: all threshold must not exceed the criteria listed in item 2 an 3.
+ user: root
+ command: disk_health -d /dev/`ls /sys$path/block`
+ EOF
+
+plugin: local
+name: TC-007-0003-002-Bad_block_test
+requires:
+ package.name == 'badblocks'
+ device.category == 'DISK'
+command:
+ cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
+ plugin: shell
+ name: TC-007-0003-002-Bad_block_test_`ls /sys$path/block`
+ requires:
+  device.path == "$path"
+  block_device.`ls /sys$path/block`_state != 'removable'
+ description:
+  This test case is used for test leopard.
+  1. Use badblocks command to perform a full disk bad block scan with 0xff pattern.
+  2. The duration of the test is under 24 hours.
+  3. Criteria: pass if no hard disk error.
+ user: root
+ command: bad_block_test -t 0xff -d /dev/`ls /sys$path/block`
+ EOF

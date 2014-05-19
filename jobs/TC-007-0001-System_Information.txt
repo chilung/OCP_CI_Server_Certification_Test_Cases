@@ -1,0 +1,43 @@
+plugin: shell
+name: TC-007-0001-001-Disk_Information
+requires: package.name == 'lshw'
+user: root
+command: disk_info
+description:
+ This test case is used for test leopard.
+ 1. Use lshw command to gather disk information. 
+ 2. The program will output disk type, vendor, product, capacity.
+ 3. Criteria: must be able to retrieve disk information.
+
+plugin: shell
+name: TC-007-0001-002-BIOS_Information
+requires: package.name == 'lshw'
+user: root
+command: bios_info
+description:
+ This test case is used for test leopard.
+ 1. Use lshw command to gather BIOS information. 
+ 2. The program will output BIOS vendor, version and release date.
+ 3. Criteria: must be able to retrieve BIOS information.
+
+plugin: shell
+name: TC-007-0001-003-NIC_Information
+command: network_device_info
+description:
+ This test case is used for test leopard.
+ 1. Use udevadm command to gather NIC information.
+ 2. The program will output Interface, product, vendor, driver, device path.
+ 3. Criteria: must be able to retrieve NIC information.
+
+plugin: shell
+name: TC-007-0001-004-RAID_Card_Information
+requires:
+ package.name == 'megacli'
+ package.name == 'megactl'
+user: root
+command: raid_info
+description:
+ This test case is used for test leopard.
+ 1. Use megasasctl command to gather LSI RAID card information.
+ 2. The program will output adapter, product name, memory, BBU, serial no.
+ 3. Criteria: All information listed in item 2 must have value to show that RAID card exists.
