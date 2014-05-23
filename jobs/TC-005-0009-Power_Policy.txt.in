@@ -1,0 +1,30 @@
+plugin: shell
+name: TC-005-0009-001-Power_Policy/last-state 
+requires:
+ package.name == 'ipmitool'
+user: root
+command: echo "TBD"; exit 1
+_description:
+ 1. Use ipmitool to set power on policy to be last-state.
+ 2. Criteria: the change of power policy should take effect without BMC firmware cold reset or system reboot.
+
+plugin: shell
+name: TC-005-0009-021-Power_Policy/alway-on
+requires:
+ package.name == 'ipmitool'
+user: root
+command: echo "TBD"; exit 1
+_description:
+ 1. Use ipmitool to set power on policy to be always-on.
+ 2. Criteria: the change of power policy should take effect without BMC firmware cold reset or system reboot.
+
+plugin: shell
+name: TC-005-0009-003-Power_Policy/alway-off
+requires:
+ package.name == 'ipmitool'
+user: root
+command: echo "TBD"; exit 1
+_description:
+ 1. Use ipmitool to set power on policy to be always-off.
+ 2. Criteria: the change of power policy should take effect without BMC firmware cold reset or system reboot.
+

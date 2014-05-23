@@ -1,0 +1,193 @@
+#! /usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  ipmi_power_off_on
+
+Description
+  1. Use ipmitool out-of-band access to turn on/off the SUT.
+  2. Criteria: the SUT can be powered on/off by ipmitool out-of-band access.
+ 
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+
+import sys
+import configparser
+import shlex
+import subprocess
+import ast
+import time
+from subprocess import (
+    check_output,
+    CalledProcessError
+)
+
+def check_power_status(host_ip, user, password):
+
+    cmd_status_on = 'ipmitool -H {} -U {} -P {} power status| grep -q "on"'\
+			.format(host_ip, user, password)
+    check_on_value = subprocess.call(cmd_status_on, shell=True)
+    time.sleep(5)
+
+    cmd_status_off = 'ipmitool -H {} -U {} -P {} power status| grep -q "off"'\
+			.format(host_ip, user, password)
+    check_off_value = subprocess.call(cmd_status_off, shell=True)
+    time.sleep(5)
+
+    if check_on_value == 0 and check_off_value == 1:
+        check_status = 'on'
+    
+    elif check_on_value == 1 and check_off_value == 0:
+        check_status = 'off'
+
+    else:
+        check_status = 'error'
+
+    return check_status
+
+def run_power_off(host_ip, user, password):
+    cmd_power_off = 'ipmitool -H {} -U {} -P {} power off'\
+        .format(host_ip, user, password)
+    power_off_return_code = subprocess.call(cmd_power_off, shell=True)
+    return power_off_return_code
+
+def run_power_on(host_ip, user, password):
+    cmd_power_on = 'ipmitool -H {} -U {} -P {} power on'\
+        .format(host_ip, user, password)
+    power_on_return_code = subprocess.call(cmd_power_on, shell=True)
+    return power_on_return_code
+
+def ipmi_reset_oob(args):
+
+    #IPMI config file
+    DEFAULT_CFG = "/etc/checkbox.d/bmc.cfg"
+    if not "config" in vars(args):
+        config_file = DEFAULT_CFG
+    else:
+        config_file = args.config
+
+    config = configparser.RawConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 20
+
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 30
+
+    try:
+        user_value = config.get('Account', 'USER')
+        passwd_value = config.get('Account', 'PASSWORD')
+        if not user_value or not passwd_value:
+            print("Invalid or Empty credential info")
+            return 40
+
+    except configparser.Error:
+        print("Invalid or Empty credential info")
+        return 50
+
+    ping_flag = 0
+    for tg in targets_list:
+    
+        if not tg or not user_value or not passwd_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for IPMI out-of-band access")
+            return 21
+        else:
+
+            print("SUT =", tg)
+            print("USER =", user_value)
+            print("PASSWORD =", passwd_value)
+
+            for n in range(2):
+
+                count = 0
+                while count < 10:
+                    ping_cmd = 'ping -c 1 {}>/dev/null 2>/dev/null'.format(tg)
+                    ping_rtn = subprocess.call(ping_cmd, shell=True)
+                    if ping_rtn == 0:
+                        print("Destination Host Reachable")
+                        
+                        #run test
+                        status = check_power_status(tg, user_value, passwd_value)
+
+                        if status == 'on':
+                            #run power off
+                            power_off_result = run_power_off(tg, user_value, passwd_value)
+                            print(" ")
+                            if power_off_result == 1:
+                                print("Failed to power off SUT.")
+                                return 88
+                        elif status == 'off':
+                            #run power on
+                            power_on_result = run_power_on(tg, user_value, passwd_value)
+                            print(" ")
+                            if power_on_result == 1:
+                                print("Failed to power on SUT.")
+                                return 99
+                        else:
+                            #do nothing
+                            print("Failed to check power status")
+                            return 77
+                        
+                        time.sleep(30)
+                        break
+
+                    else:
+                        time.sleep(10)
+                        count = count+1
+                        print("Destination Host Unreachable")
+
+                if count == 10:         
+                    print("Host Has No Response, End of Test")
+                    ping_flag = 100
+
+    if ping_flag == 100:
+        return 100
+    return 0
+
+def main():
+
+    intro_message = "Default config location is /etc/checkbox.d/bmc.cfg"
+    parser = ArgumentParser(description=intro_message,
+		 formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', type=str,
+		 default="/etc/checkbox.d/bmc.cfg",
+		 help="Supply config file for getting authentication info")
+    args = parser.parse_args()
+    return ipmi_reset_oob(args)
+
+if __name__ == "__main__":
+    sys.exit(main())

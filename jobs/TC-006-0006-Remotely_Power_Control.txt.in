@@ -1,0 +1,20 @@
+plugin: shell
+name: TC-006-0006-001-Remotely_Power_Off_and_On
+requires: package.name == 'ipmitool'
+user: root
+command: ipmi_power_off_on 
+_description: Use ipmitool out-of-band access to turn on/off the SUT
+
+plugin: shell
+name: TC-006-0006-002-Remotely_Power_Reset
+requires: package.name == 'ipmitool'
+user: root
+command: ipmi_power_reset
+_description: Use ipmitool to complete 20 power reset on SUT successfully through OOB
+
+plugin: shell
+name: TC-006-0006-003-Remotely_Warm_Reboot
+requires: package.name == 'ipmitool'
+user: root
+command: 
+_description: Use ipmitool to complete 20 warm reboot on SUT successfully through OOB

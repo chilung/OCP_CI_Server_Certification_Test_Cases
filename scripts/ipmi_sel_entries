@@ -5,6 +5,8 @@ Industrial Technology Research Institute
 
 File Name
   ipmi_sel_entries
+
+Description
   1. Use ipmitool to collect event log information
   2. Calculate entries number of system event log
   3. Criteria: the A log must be capable of saving at least 256 entries
@@ -59,8 +61,8 @@ def get_sel_info(host_ip, user, password):
 
 def sel_entry_test(args):
 
-    #Default config file to config requirement info for DCMI in-band/out-of-band access 
-    DEFAULT_CFG = "/etc/checkbox.d/me.cfg"
+    #Default config file to config requirement info for IPMI in-band/out-of-band access 
+    DEFAULT_CFG = "/etc/checkbox.d/bmc.cfg"
     if not "config" in vars(args):
         config_file = DEFAULT_CFG
     else:
@@ -97,7 +99,7 @@ def sel_entry_test(args):
     for target in targets_list:
 
         if not target or not user_value or not passwd_value:
-            print("Require Taget IP, Account(USER/PASSWORD) for DCMI out-of-band access")
+            print("Require Taget IP, Account(USER/PASSWORD) for IPMI out-of-band access")
             return 50
         else:
             print("SUT =", target)
@@ -131,10 +133,10 @@ def sel_entry_test(args):
 
 def main():
 
-    intro_message = "Default config location is /etc/checkbox.d/me.cfg"
+    intro_message = "Default config location is /etc/checkbox.d/bmc.cfg"
     parser = ArgumentParser(description=intro_message,
                             formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--config', default="/etc/checkbox.d/me.cfg",
+    parser.add_argument('--config', default="/etc/checkbox.d/bmc.cfg",
                         help="Supply config file for getting authentication info")
     args = parser.parse_args()
     return sel_entry_test(args)

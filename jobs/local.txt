@@ -741,6 +741,69 @@ command:
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-005-0002-Platform_Controller_Hub.txt?(.in)
 
+name: __TC-005-0006-Sensors_Monitoring__
+plugin: local
+_description: Analog Sensors Momitoring
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-005-0006-Sensors_Monitoring.txt?(.in)
+
+name: __TC-005-0009-Power_Policy__
+plugin: local
+_description: Power Policy Validation
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-005-0009-Power_Policy.txt?(.in)
+
+name: __TC-006-0002-Management_Node_Identifier__
+plugin: local
+_description: Management Node Identifier
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-006-0002-Management_Node_Identifier.txt?(.in)
+
+name: __TC-006-0003-Rights_and_Credentials__
+plugin: local
+_description:
+command: Rights_and_Credentials
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-006-0003-Rights_and_Credentials.txt?(.in)
+
+name: __TC-006-0006-Remotely_Power_Control__
+plugin: local
+_description: Perform Power Control on Remote Server
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-006-0006-Remotely_Power_Control.txt?(.in)
+
+name: __TC-006-0007-Temperature__
+plugin: local
+_description: Stress BMC Test
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-006-0007-Temperature.txt?(.in)
+
+name: __TC-006-0008-User_Levels__
+plugin: local
+_description: Security for User Levels
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-006-0008-User_Levels.txt?(.in)
+
+name: __TC-006-0009-Inventory__
+plugin: local
+_description: Inventory Information
+command:
+  shopt -s extglob
+  cat $CHECKBOX_SHARE/jobs/TC-006-0009-Inventory.txt?(.in)
+
+name: __TC-006-0010-System_Log__
+plugin: local
+_description: System Event Log
+command:
+ shopt -s extglob
+ cat $CHECKBOX_SHARE/jobs/TC-006-0010-System_Log.txt?(.in)
+
 name: __TC-007-0001-System_Information__
 plugin: local
 command:

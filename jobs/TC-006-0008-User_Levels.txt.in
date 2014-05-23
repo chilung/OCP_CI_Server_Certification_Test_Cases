@@ -1,0 +1,26 @@
+plugin: shell
+name: TC-006-0008-001-BMC_Account_Privilege_Verify-User
+requires: package.name == 'ipmitool'
+user: root
+command: ipmi_priv_user
+_description: 
+ 1. Use ipmitool out-of-band to read power status, to perform power reset and add a new user account
+ 2. Criteria: power status reading must be successful and must fail at power reset and adding a new user account
+
+plugin: shell
+name: TC-006-0008-002-BMC_Account_Privilege_Verify-Operator
+requires: package.name == 'ipmitool'
+user: root
+command: ipmi_priv_oper 
+_description:
+ 1. Use ipmitool out-of-band to read power status, to perform power reset and add a new user account
+ 2. Criteria: power status reading and power reset must be successful and must fail at adding a new user account 
+
+plugin: shell
+name: TC-006-0008-003-BMC_Account_Privilege_Verify-Administrator
+requires: package.name == 'ipmitool'
+user: root
+command: ipmi_priv_admin
+_description:
+ 1. Use ipmitool out-of-band to read power status, to perform power reset and add a new user account
+ 2. Criteria: Reading power status, performing power reset and adding a user account must all be successful

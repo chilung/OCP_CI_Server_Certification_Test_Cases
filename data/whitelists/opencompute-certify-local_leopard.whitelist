@@ -46,6 +46,12 @@ __TC-005-0002-Platform_Controller_Hub__
 TC-005-0002-001-SATA_Port
 TC-005-0002-002-USB_Port
 TC-005-0002-003-mSATA_Port
+__TC-005-0006-Sensors_Monitoring__
+TC-005-0006-001-In-band_Sensors_Monitoring
+TC-005-0006-003_Thermal_Monitoring
+TC-005-0006-004_Power_Monitoring
+__TC-006-0010-System_Log__
+TC-006-0010-003-System_Log_PET_Format
 __TC-007-0001-System_Information__
 TC-007-0001-001-Disk_Information
 TC-007-0001-002-BIOS_Information

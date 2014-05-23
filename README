@@ -24,7 +24,7 @@ Each section exists in configuration file has its own purpose.
 The following will explain how to fill in settings in each section.
 
 Note:
-1. Path of configuration file: /etc/checkbox.d/me.cfg
+1. Path of configuration file: /etc/checkbox.d/bmc.cfg or /etc/checkbox.d/me.cfg
 2. Without these settings pre-setting in configuration file, you won't start tests smoothly.
 
 ##############################################################################################

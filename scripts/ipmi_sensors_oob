@@ -1,0 +1,240 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  ipmi_sensors_oob
+
+Description
+  1. Use ipmitool to monitor analog sensors in SDR table through OOB access.
+  2. Criteria: the status of analog sensors should be "ok" and the data should not be null.
+
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+import sys
+import time
+import re
+import configparser
+import shlex
+import subprocess
+import ast
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+from subprocess import (
+    check_output,
+    CalledProcessError
+)
+
+def get_sdr_remote(host_ip, user, password):
+    cmd = "ipmitool -H {} -U {} -P {} sdr".format(host_ip, user, password)
+    sdr_return = subprocess.check_output(shlex.split(cmd), stderr=subprocess.STDOUT,
+                                         universal_newlines=True)
+    return sdr_return
+
+def parse_sdr(output):
+    output = output.strip()
+    output_1Line = output.split("\n")
+    data = {}
+
+    for line in output_1Line:
+        sub_value = {}
+        string_list = line.split("|")
+        name = string_list[0].strip()
+        sensor_output = string_list[1].strip()
+        sub_value.update({'output':sensor_output})
+        status = string_list[2].strip()
+        sub_value.update({'status':status})
+        data.update({name:sub_value})
+    return data
+
+def calculate_CPU_temp(data_dict, CPU_Therm_Margin_id, CPU_Tjmax_id):
+
+    if data_dict.get(CPU_Therm_Margin_id) and data_dict.get(CPU_Tjmax_id):
+        if data_dict.get(CPU_Therm_Margin_id).get('status') == 'ok' and data_dict.get(CPU_Tjmax_id).get('status') == 'ok':
+            P_Therm_Margin_output = data_dict.get(CPU_Therm_Margin_id).get('output')
+            CPU_Tjmax_output = data_dict.get(CPU_Tjmax_id).get('output')
+            P_Therm_Margin = re.search(r'[0-9-]+', P_Therm_Margin_output).group(0)
+            CPU_Tjmax = re.search(r'[0-9-]+', CPU_Tjmax_output).group(0)
+            CPU_temp = int(P_Therm_Margin)+int(CPU_Tjmax)
+            return str(CPU_temp)+' degrees C'
+        else:
+            return 'Error'
+    else:
+        return 'None'
+
+def ipmi_sdr(args):
+
+    flag = 0
+    #IPMI config file
+    DEFAULT_CFG = "/etc/checkbox.d/bmc.cfg"
+    if not "config" in vars(args):
+        config_file = DEFAULT_CFG
+    else:
+        config_file = args.config
+
+    config = configparser.RawConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+
+    try:
+        sensor_nick = config.options("Sensors")
+    except configparser.NoSectionError:
+        print("No Section: Sensors")
+        return 20
+    
+    if sensor_nick:
+        sensor_list = []
+        for id in sensor_nick:
+            sensor_key = config.get("Sensors", id)
+            if sensor_key:
+                sensor_list.append(sensor_key)
+            else:
+                print("No Sensor ID specified in Config file")
+                return 30
+    else:
+        print("No key of Sensor ID specified in config file")
+        return 40
+
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 60
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 60
+
+    try:
+        user_value = config.get("Account", "USER")
+        password_value = config.get("Account", "PASSWORD")
+    except configparser.NoOptionError:
+        print("Invalid or Empty credential info")
+        return 70
+
+    for tg in targets_list:
+
+        if not tg or not user_value or not password_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for IPMI out-of-band access")
+            return 80
+        else:
+
+            print("SUT =", tg)
+            print("USER =", user_value)
+            print("PASSWORD =", password_value)
+
+            try:
+                sensor_data = get_sdr_remote(tg, user_value, password_value)
+                time.sleep(5)
+            except CalledProcessError as ipmi_exception:
+                print("Failed executing ipmi, Reason: %s" % ipmi_exception)
+                return 50
+
+            try:
+                data = parse_sdr(sensor_data)
+            except:
+                print("Parsing output of sdr table error")
+                flag = 1
+                continue
+
+            need_data = {}
+            for need_id in sensor_list:
+
+                if data.get(need_id):
+                    need_value = data.get(need_id).get('output')
+                    need_data.update({need_id:need_value})
+
+                    if data.get(need_id).get('status') != 'ok':
+                        flag = 1
+                else:
+
+                    try:
+                        CPUx_Temp = config.get("Sensors", "CPUx")
+                    except configparser.NoOptionError:
+                        CPUx_Temp = ''
+
+                    try:
+                        CPUy_Temp = config.get("Sensors", "CPUy")
+                    except configparser.NoOptionError:
+                        CPUy_Temp = ''
+
+                    if need_id == CPUx_Temp:
+
+                        try:
+                            PxTM = config.get("SensorsForCPUTemp", "Px Therm Margin")
+                        except configparser.NoOptionError:
+                            PxTM = ''
+
+                        try:
+                            CPUx_Tjmax = config.get("SensorsForCPUTemp", "CPUx Tjmax")
+                        except configparser.NoOptionError:
+                            CPUx_Tjmax = ''
+
+                        if PxTM and CPUx_Tjmax:
+                            need_data.update({CPUx_Temp:calculate_CPU_temp(data, PxTM, CPUx_Tjmax)})
+                            if calculate_CPU_temp(data, PxTM, CPUx_Tjmax) == 'None' or calculate_CPU_temp(data, PxTM, CPUx_Tjmax) == 'Error':
+                                flag = 1
+                        else:
+                            flag = 1
+
+                    elif need_id == CPUy_Temp:
+                        
+                        try:
+                            PyTM = config.get("SensorsForCPUTemp", "Py Therm Margin")
+                        except configparser.NoOptionError:
+                            PyTM = ''
+
+                        try:
+                            CPUy_Tjmax = config.get("SensorsForCPUTemp", "CPUy Tjmax")
+                        except configparser.NoOptionError:
+                            CPUy_Tjmax = ''
+                        
+                        if PyTM and CPUy_Tjmax:
+                            need_data.update({CPUy_Temp:calculate_CPU_temp(data, PyTM, CPUy_Tjmax)})
+                            if calculate_CPU_temp(data, PyTM, CPUy_Tjmax) == 'None' or calculate_CPU_temp(data, PyTM, CPUy_Tjmax) == 'Error':
+                                flag = 1
+                        else:
+                            flag = 1
+                    else:
+                        #need_data.update({need_id:'None'})
+                        flag = 1
+
+                print("%s: %s" %(need_id, need_data.get(need_id)))
+
+    if flag == 1:
+        return 100
+    return 0
+
+def main():
+
+    intro_message = "Default config location is /etc/checkbox.d/bmc.cfg"
+    parser = ArgumentParser(description=intro_message, formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', type=str, default="/etc/checkbox.d/bmc.cfg", help="Supply config file for sensor IDs parameters")
+    args = parser.parse_args()
+    return ipmi_sdr(args)
+
+if __name__ == "__main__":
+    sys.exit(main())

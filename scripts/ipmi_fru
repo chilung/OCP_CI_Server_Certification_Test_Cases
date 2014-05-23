@@ -5,6 +5,8 @@ Industrial Technology Research Institute
 
 File Name
   ipmi_fru
+
+Description
   1. Use ipmitool to retrieve FRU data.
   2. The data contains product manufacture, product part number, product serial number, motherboard serial number.
   3. Criteria: Above All data mentioned above must notshould not be null
@@ -43,28 +45,28 @@ import re
 import configparser
 
 def get_system_manufacturer(output):
-    system_manufacture = re.search(r'Product Manufacturer\s*:\s*([a-zA-Z0-9-._ ]+)', output)
+    system_manufacture = re.search(r'Product Manufacturer\s*:\s*([a-zA-Z0-9-._ ]+\n)', output)
     if system_manufacture  == None:
         return 'Error'
     else:
         return system_manufacture.group(1).strip()
 
 def get_system_part_number(output):
-    system_part_number = re.search(r'Product Part Number\s*:\s*([a-zA-Z0-9-._ ]+)', output)
+    system_part_number = re.search(r'Product Part Number\s*:\s*([a-zA-Z0-9-._ ]+\n)', output)
     if system_part_number == None:
         return 'Error'
     else:
         return system_part_number.group(1).strip()
     
 def get_system_serial_number(output):
-    system_serial_number = re.search(r'Product Serial\s*:\s*([a-zA-Z0-9-._ ]+)', output)
+    system_serial_number = re.search(r'Product Serial\s*:\s*([a-zA-Z0-9-._ ]+\n)', output)
     if system_serial_number == None:
         return 'Error'
     else:
         return system_serial_number.group(1).strip()
 
 def get_board_serial_number(output):
-    board_serial_number = re.search(r'Board Serial\s*:\s*([a-zA-Z0-9-._ ]+)', output)
+    board_serial_number = re.search(r'Board Serial\s*:\s*([a-zA-Z0-9-._ ]+\n)', output)
     if board_serial_number == None:
         return 'Error'
     else:
@@ -76,8 +78,8 @@ def get_fru_info(host_ip, user, password):
     return fru_return
 
 def ipmi_fru(args):
-    #DCMI config file
-    DEFAULT_CFG = "/etc/checkbox.d/me.cfg"
+    #IPMI config file
+    DEFAULT_CFG = "/etc/checkbox.d/bmc.cfg"
 
     if not "config" in vars(args):
         config_file = DEFAULT_CFG
@@ -122,7 +124,7 @@ def ipmi_fru(args):
     for tg in targets_list:
             
         if not tg or not user_value or not passwd_value:
-            print("Require Taget IP, Account(USER/PASSWORD) for DCMI out-of-band access")
+            print("Require Taget IP, Account(USER/PASSWORD) for IPMI out-of-band access")
             return 60
         else:
             print("SUT =", tg)
@@ -141,18 +143,18 @@ def ipmi_fru(args):
             inevntory_fru_list = ['Product Manufacturer', 'Product Part Number', 'Product Serial', 'Board Serial']
             for item in inevntory_fru_list:
                 print("{}: {}".format(item, inevntory_fru.get(item)))
-                if inevntory_fru.get(item) == 'Error':
+                if inevntory_fru.get(item) == 'Error' or inevntory_fru.get(item) == '':
                     flag = 1
     if flag == 1:
         return 100
     return 0
 
 def main():
-    intro_message = "Default config location is /etc/checkbox.d/me.cfg"
+    intro_message = "Default config location is /etc/checkbox.d/bmc.cfg"
     parser = ArgumentParser(description=intro_message,
                             formatter_class=RawTextHelpFormatter)
     parser.add_argument('--config', type=str,
-                        default="/etc/checkbox.d/me.cfg",
+                        default="/etc/checkbox.d/bmc.cfg",
                         help="Supply config file for getting authentication info")
     args = parser.parse_args()
     return ipmi_fru(args)

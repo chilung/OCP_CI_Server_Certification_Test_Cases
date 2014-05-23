@@ -1,0 +1,55 @@
+plugin: shell
+name: TC-005-0006-001-In-band_Sensors_Monitoring
+requires: 
+ package.name == 'dcmitool'
+ package.name == 'ipmitool'
+user: root
+command: 
+ lsmod |grep -q "ipmi_si"
+ result_ipmi=`echo $?` 
+ lsmod |grep -q "dcmi" 
+ result_dcmi=`echo $?` 
+ code=-1
+ output='' 
+ if [ $result_ipmi -eq 1 ] && [ $result_dcmi -eq 1 ]; then 
+	echo "Aborting IPMI test"
+ 	exit 1
+ elif [ $result_ipmi -eq 1 ] && [ $result_dcmi -eq 0 ]; then 
+	output=`/usr/share/checkbox/scripts/ipmi_sensors_ib --tool dcmitool` 
+	code=$? 
+ elif [ $result_ipmi -eq 0 ] && [ $result_dcmi -eq 1 ]; then 
+	output=`/usr/share/checkbox/scripts/ipmi_sensors_ib --tool ipmitool` 
+	code=$? 
+ fi 
+ echo $output
+ exit $code
+_description:
+ 1. Use ipmitool to monitor analog sensors in SDR table through in-band access.
+ 2. Criteria: the status of analog sensors should be "ok" and the data should not be null.
+
+plugin: shell
+name: TC-005-0006-002-OOB_Sensors_Monitoring
+requires:
+ package.name == 'ipmitool'
+user: root
+command: ipmi_sensors_oob
+_description:
+ 1. Use ipmitool to monitor analog sensors in SDR table through OOB access.
+ 2. Criteria: the status of analog sensors should be "ok" and the data should not be null.
+
+plugin: shell
+name: TC-005-0006-003_Thermal_Monitoring
+user: root
+command: echo "Refers to TC-005-0006-001 In-band Sensors Monitoring."; echo "Refers to TC-005-0006-002 OOB Sensors Monitoring."
+_description: 
+ 1. Use ipmitool to monitor thermal sensors in SDR table through in-band/OOB access.
+ 2. Criteria: the status of thermal sensors should be "ok" and the data should not be null.
+
+plugin: shell
+name: TC-005-0006-004_Power_Monitoring
+user: root
+command: echo "Refers to TC-005-0006-001 In-band Sensors Monitoring."; echo "Refers to TC-005-0006-002 OOB Sensors Monitoring."
+_description:
+ 1. Use ipmitool to monitor power sensors in SDR table through in-band/OOB access.
+ 2. Criteria: the status of power sensors should be "ok" and the data should not be null.
+

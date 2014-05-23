@@ -1,0 +1,27 @@
+plugin: shell
+name: TC-006-0010-001-System_Log_Entries
+requires: package.name == 'ipmitool'
+user: root
+command: ipmi_sel_entries
+_description: 
+  1. Use ipmitool to collect event log information
+  2. Calculate entries number of system event log
+  3. Criteria: the A log must be capable of saving at least 256 entries
+
+plugin: shell
+name: TC-006-0010-002-System_Log_Hardware_Error
+requires: package.name == 'ipmitool'
+user: root
+command: ipmitool sel elist
+_description:
+ 1. Use ipmitool to capture and check system log.
+ 2. Criteria: hardware errors must not exist in system log. (check manually)
+
+plugin: shell
+name: TC-006-0010-003-System_Log_PET_Format
+requires: package.name == 'ipmitool'
+user: root
+command: echo "Refers to TC-006-0010-002 System Log Hardware Error"
+_description:
+ 1. Use ipmitool to capture and check system log.
+ 2. Criteria: system log must follow PET format.
