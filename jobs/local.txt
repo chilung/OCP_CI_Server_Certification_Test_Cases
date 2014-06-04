@@ -764,8 +764,8 @@ command:
 
 name: __TC-006-0003-Rights_and_Credentials__
 plugin: local
-_description:
-command: Rights_and_Credentials
+_description: Rights_and_Credentials
+command: 
   shopt -s extglob
   cat $CHECKBOX_SHARE/jobs/TC-006-0003-Rights_and_Credentials.txt?(.in)
 

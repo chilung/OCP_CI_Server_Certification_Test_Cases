@@ -2,5 +2,5 @@ plugin: shell
 name: TC-006-0002-001-Management_Node_Identifier
 requires: package.name == 'ipmitool'
 user: root
-command: echo "Refer to TC-006-0010-001 Inventory Information." 
+command: echo "Refer to TC-006-0009-001 Inventory Information." 
 _description: Retrieve GUID using ipmitool

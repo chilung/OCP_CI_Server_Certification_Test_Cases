@@ -24,7 +24,7 @@ command:
  echo $output
  exit $code
 _description:
- 1. Use ipmitool to monitor analog sensors in SDR table through in-band access.
+ 1. Use ipmitool/dcmitool to monitor analog sensors in SDR table through in-band access.
  2. Criteria: the status of analog sensors should be "ok" and the data should not be null.
 
 plugin: shell

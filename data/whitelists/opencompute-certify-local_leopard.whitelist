@@ -51,6 +51,7 @@ TC-005-0006-001-In-band_Sensors_Monitoring
 TC-005-0006-003_Thermal_Monitoring
 TC-005-0006-004_Power_Monitoring
 __TC-006-0010-System_Log__
+TC-006-0010-002-System_Log_Hardware_Error
 TC-006-0010-003-System_Log_PET_Format
 __TC-007-0001-System_Information__
 TC-007-0001-001-Disk_Information

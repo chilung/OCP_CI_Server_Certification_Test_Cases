@@ -9,7 +9,7 @@ File Name
 Description
   1. Use ipmitool to collect event log information
   2. Calculate entries number of system event log
-  3. Criteria: the A log must be capable of saving at least 256 entries
+  3. Criteria: the log must be capable of saving at least 256 entries
 
 Authors
   Sophia Wu <Sophia.Wu@itri.org.tw>
