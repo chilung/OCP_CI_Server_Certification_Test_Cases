@@ -7,8 +7,8 @@ File Name
   ipmi_power_reset
 
 Description
-  1. Use ipmitool out-of-band access to power reset the SUT 20 times.
-  2. Criteria: complete 20 power reset on SUT successfully using ipmitool out-of-band access.
+  1. Use ipmitool out-of-band access to power hard reset the SUT 20 times.
+  2. Criteria: complete 20 power hard reset on SUT successfully using ipmitool out-of-band access.
 
 Authors
   Sophia Wu <Sophia.Wu@itri.org.tw>
