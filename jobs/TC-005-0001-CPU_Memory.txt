@@ -2,12 +2,12 @@ plugin: shell
 name: TC-005-0001-001-CPU_Information
 requires: package.name == 'lshw'
 user: root
-command: cpu_info -p Xeon -f E5
+command: cpu_info_leopard -p Xeon -f E5
 description:
  This test case is used for test leopard.
- 1. Use lshw command to gather CPU information.
+ 1. Use dmidecode command to gather CPU information.
  2. The program will output CPU model and L1, L2, L3 cache size.
- 3. Criteria: CPU model must be Intel Xeon processor E5-2600 product family and L3 cache size must be up to 20MB.
+ 3. Criteria: CPU model must be Intel Xeon processor E5-2600 product family.
 
 
 plugin: shell
