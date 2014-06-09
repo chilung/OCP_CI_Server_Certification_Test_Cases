@@ -7,8 +7,8 @@ File Name
   ipmi_priv_uesr  
 
 Description
-  1. Use ipmitool out-of-band to read power status, to perform power reset and add a new user account
-  2. Criteria: power status reading must be successful and must fail at power reset and adding a new user account
+  1. Use ipmitool out-of-band to read power status, to perform power reset and add a new user account.
+  2. Criteria: power status reading must be successful and must fail at power reset and adding a new user account.
 
 Authors
   Sophia Wu <Sophia.Wu@itri.org.tw>

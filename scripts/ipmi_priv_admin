@@ -8,7 +8,7 @@ File Name
 
 Description
   1. Use ipmitool out-of-band to read power status, to perform power reset and add a new user account.
-  2. Criteria: Reading power status, performing power reset and adding a user account must all be successful.
+  2. Criteria: reading power status, performing power reset and adding a user account must all be successful.
 
 Authors
   Sophia Wu <Sophia.Wu@itri.org.tw>

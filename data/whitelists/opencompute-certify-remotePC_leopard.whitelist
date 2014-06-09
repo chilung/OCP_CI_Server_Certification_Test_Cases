@@ -47,7 +47,7 @@ TC-006-0006-001-Remotely_Power_Off_and_On
 TC-006-0006-002-Remotely_Power_Reset
 TC-006-0006-003-Remotely_Warm_Reboot
 __TC-006-0008-User_Levels__
-TC-006-0008-001-BMC_Account_Privilege_Verify-User
-TC-006-0008-002-BMC_Account_Privilege_Verify-Operator
-TC-006-0008-003-BMC_Account_Privilege_Verify-Administrator
+TC-006-0008-001-Verify_BMC_Account_Privilege-User
+TC-006-0008-002-Verify_BMC_Account_Privilege-Operator
+TC-006-0008-003-Verify_BMC_Account_Privilege-Administrator
 
