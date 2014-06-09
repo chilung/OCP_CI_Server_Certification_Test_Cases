@@ -41,19 +41,19 @@ from subprocess import (
 )
 
 def get_power_status(host_ip, user, password):
-    cmd_status = 'ipmitool -H {} -U {} -P {} power status 1>/dev/null 2>/dev/null'\
+    cmd_status = 'ipmitool -H {} -U {} -P {} power status -L operator 1>/dev/null 2>/dev/null'\
         .format(host_ip, user, password)
     status_code = subprocess.call(cmd_status, shell=True)
     return status_code
     
 def power_reset(host_ip, user, password):
-    cmd_reset = 'ipmitool -H {} -U {} -P {} power reset 1>/dev/null 2>/dev/null'\
+    cmd_reset = 'ipmitool -H {} -U {} -P {} power reset -L operator 1>/dev/null 2>/dev/null'\
         .format(host_ip, user, password)
     reset_code = subprocess.call(cmd_reset, shell=True)
     return reset_code
 
 def add_user(host_ip, user, password, new_id, new_user):
-    cmd_add_user = 'ipmitool -H {} -U {} -P {} user set name {} {} 1>/dev/null 2>/dev/null'\
+    cmd_add_user = 'ipmitool -H {} -U {} -P {} user set name {} {} -L operator 1>/dev/null 2>/dev/null'\
         .format(host_ip, user, password, new_id, new_user)
     add_user_code = subprocess.call(cmd_add_user, shell=True)
     return add_user_code
@@ -118,7 +118,7 @@ def ipmi_user_level_test(args):
             time.sleep(5)
 
             reset_result = power_reset(tg, user_value, password_value)
-            time.sleep(5)
+            time.sleep(30)
             if not new_user_value or not new_user_id_value:
                 print("Require new user info pre-configured in /etc/checkbox.d/bmc.cfg")
                 return 60
