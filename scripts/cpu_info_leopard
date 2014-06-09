@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications 
+Industrial Technology Research Institute
+
+It is NOT YET officially approved by OCP.
+
+cpu_info
+  Use dmidecode command to gather CPU information.
+  The program will output CPU model and L1, L2, L3 cache size.
+  Criteria: CPU model and product family must match user's input.
+
+Authors
+  Nelson Chu <Nelson.Chu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+import os
+import re
+import sys
+import xml.etree.ElementTree as ET
+from subprocess import check_output
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+def run(product, family):
+    command = "dmidecode -t processor |grep -E 'Version|Cache'"
+    with open(os.devnull, 'w') as NULL:
+        output = check_output(command, stderr=NULL, shell=True)
+    output = output.decode('utf-8').strip()
+
+    cpu_attr = []
+    for item in output.split('\n'):
+        cpu_attr.append(item.strip())
+
+    for attr in cpu_attr:
+        if attr.startswith("Version"):
+            processor = attr.split(':')[1].strip()
+            print(processor)
+            match = re.search(product + '.*' + family, processor)
+            if not match:
+                print("Fail: Cannot match CPU %s %s family." %(product, family)
+                      ,file=sys.stderr)
+                return 1
+        else:
+            cache_handle = attr.split(':')[1].strip()
+            command = "dmidecode -t cache|grep -a6 {0}".format(cache_handle) +\
+                "|grep -E 'Socket Designation|Installed Size'"
+            with open(os.devnull, 'w') as NULL:
+                output = check_output(command, stderr=NULL, shell=True)
+            output = output.decode('utf-8').strip()
+            print(output.split('\n')[0].split(':')[1].strip(),":", end="")
+            print(output.split('\n')[1].split(':')[1].strip())
+
+    return 0
+
+def main():
+    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+
+    parser.add_argument('-p', '--product', type=str, required=True,
+                        help=("The CPU product name. [Example: Xeon]"))
+    parser.add_argument('-f', '--family', type=str, required=True,
+                        help=("Processor family. [Example: E5]"))
+
+    args = parser.parse_args()
+
+    product = args.product.title()
+    family = args.family.title()
+    return run(product, family)
+
+if __name__ == '__main__':
+    sys.exit(main())
