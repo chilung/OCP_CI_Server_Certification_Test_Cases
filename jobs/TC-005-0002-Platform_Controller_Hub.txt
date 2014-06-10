@@ -1,22 +1,15 @@
 plugin: shell
 name: TC-005-0002-001-SATA_Port
-command: check_sata_port
+command: check_sata_port_leopard
 description:
  This test case is used for test leopard.
- 1. Use dmesg command to gather SATA information.
+ 1. Retrieve dmesg log to gather SATA information.
  2. Criteria: SATA port speed up to 6.0Gps.
 
 plugin: shell
 name: TC-005-0002-002-USB_Port
-command: check_usb_port
+command: check_usb_port_leopard
 description:
  This test case is used for test leopard.
- 1. Use dmesg command to gather USB information.
+ 1. Retrieve dmesg log to gather USB information.
  2. Criteria: USB version must be 2.0 or higher.
-
-plugin: shell
-name: TC-005-0002-003-mSATA_Port
-command: echo "TBD."
-description:
- This test case is used for test leopard.
- TBD.
