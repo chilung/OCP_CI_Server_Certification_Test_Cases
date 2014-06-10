@@ -3,7 +3,7 @@ name: TC-006-0009-001-Inventory_Infomation
 requires: 
  package.name == 'ipmitool'
 user: root
-command: echo "TBD"; exit 1
+command: ipmi_inventory
 _description: 
  1. Use ipmitool to collect inventory information including Asset Tag, Device ID, System GUID, Firmware Revision, IPMI Version, Management Controller ID
  2. Criteria: All information mentioned above must not should not be null

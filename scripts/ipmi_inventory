@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  ipmi_inventory
+  1. Use ipmitool to collect inventory information including Asset Tag, Device ID, System GUID, Firmware Revision, IPMI Version, Management Controller ID.
+  2. Criteria: All information mentioned above must not should not be null.
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+
+import sys
+import shlex
+import time
+import subprocess
+from subprocess import (
+    check_output,
+    CalledProcessError
+)
+import re
+import configparser
+
+
+def get_mcinfo(host_ip, user, password):
+
+    try:
+        cmd = 'ipmitool -H {} -U {} -P {} mc info'.format(host_ip, user, password)
+        mcinfo_return = check_output(shlex.split(cmd), universal_newlines=True)
+        time.sleep(5)
+    except CalledProcessError as command_exception:
+        print("Failed executing ipmi command for getting mc info. Reason:%s" % command_exception)
+
+    try:
+
+        deviceid = re.search(r'Device ID\s*:\s*([a-zA-Z0-9-._ ]+)', mcinfo_return)
+        if deviceid == None:
+            deviceid = 'Error'
+        else:
+            deviceid = deviceid.group(1).strip()
+
+        Firm = re.search(r'Firmware Revision\s+\s*:\s*([a-zA-Z0-9-._ ]+)', mcinfo_return)
+        if Firm == None:
+            Firm = 'Error'
+        else:
+            Firm = Firm.group(1).strip()
+
+        IPMI_Ver = re.search(r'IPMI Version\s+\s*:\s*([a-zA-Z0-9-._ ]+)', mcinfo_return)
+        if IPMI_Ver == None:
+            IPMI_Ver = 'Error'
+        else:
+            IPMI_Ver = IPMI_Ver.group(1).strip()
+
+        return deviceid, Firm, IPMI_Ver    
+
+    except:
+
+        return 'Error', 'Error', 'Error'
+
+def get_asset_tag(host_ip, user, password):
+
+    try:
+        cmd = 'ipmitool -H {} -U {} -P {} fru'.format(host_ip, user, password)
+        asset_tag_return = check_output(shlex.split(cmd), universal_newlines=True)
+        time.sleep(5)
+    except CalledProcessError as command_exception:
+        print("Failed executing ipmi command for getting asset tag. Reason:%s" % command_exception)
+
+    try:
+        asset_tag = re.search(r'Product Asset Tag\s*:\s*([a-zA-Z0-9-._ ]+)', asset_tag_return)
+        if asset_tag == None:
+            return 'Error'
+        return asset_tag.group(1).strip()
+    except:
+        return 'Error'
+
+def get_guid(host_ip, user, password):
+
+    try:
+        cmd = 'ipmitool -H {} -U {} -P {} mc guid'.format(host_ip, user, password)
+        guid_return = check_output(shlex.split(cmd), universal_newlines=True)
+        time.sleep(5)
+    except CalledProcessError as command_exception:
+        print("Failed executing ipmi command for getting guid. Reason:%s" % command_exception)
+
+    try:
+        mcguid = re.search(r'System GUID\s*:\s*([a-zA-Z0-9-._ ]+)', guid_return)
+        if mcguid == None:
+            return 'Error'
+        return mcguid.group(1).strip()
+    except:
+        return 'Error'
+
+def get_mcid(host_ip, user, password):
+
+    try:
+        cmd = 'ipmitool -H {} -U {} -P {} dcmi get_mc_id_string'.format(host_ip, user, password)
+        mcid_return = check_output(shlex.split(cmd), universal_newlines=True)
+        time.sleep(5)
+    except CalledProcessError as command_exception:
+        print("Failed executing ipmi command for getting mc id. Reason:%s" % command_exception)
+
+    try:
+        mcid =  re.search(r'Get Management Controller Identifier String\s*:\s*([a-zA-Z0-9-._ ]+)', mcid_return)
+        if mcid == None:
+            return 'Error'
+        return mcid.group(1).strip()
+    except:
+        return 'Error'
+
+def inventory(args):
+
+    #IPMI config file
+    DEFAULT_CFG = "/etc/checkbox.d/bmc.cfg"
+
+    if not "config" in vars(args):
+        config_file = DEFAULT_CFG
+    else:
+        config_file = args.config
+
+    config = configparser.RawConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 20
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 30
+
+    try:
+        user_value = config.get('Account', 'USER')
+        passwd_value = config.get('Account', 'PASSWORD')
+        if not user_value or not passwd_value:
+            print("Invalid or Empty credential info")
+            return 40
+
+    except configparser.Error:
+        print("Invalid or Empty credential info")
+        return 50
+
+
+    flag = 0
+    for tg in targets_list:
+        
+        if not tg or not user_value or not passwd_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for IPMI out-of-band access")
+            return 60
+        else:
+            print("SUT =", tg)
+            inventory_dict = {}
+            inventory_list = ['Asset Tag', 'System GUID', 'Get Management Controller Identifier String', 'Device ID', 'Firmware Revision', 'IPMI Version']
+            Device_ID, Firmware, IPMI_version = get_mcinfo(tg, user_value, passwd_value)
+            inventory_dict.update({'Asset Tag':get_asset_tag(tg, user_value, passwd_value)})
+            inventory_dict.update({'System GUID':get_guid(tg, user_value, passwd_value)})
+            inventory_dict.update({'Get Management Controller Identifier String':get_mcid(tg, user_value, passwd_value)})
+            inventory_dict.update({'Device ID':Device_ID})
+            #inventory_dict.update({'Manufacturer Name':Manufacturer})
+            inventory_dict.update({'Firmware Revision':Firmware})
+            inventory_dict.update({'IPMI Version':IPMI_version})
+
+            for item in inventory_list:
+                if inventory_dict.get(item) == 'Error' or inventory_dict.get(item) == None:
+                    flag = 1
+                
+                print("{}: {}".format(item, inventory_dict.get(item)))
+
+    if flag == 1:
+        return 1
+    return 0
+
+def main():
+    intro_message = "Default config location is /etc/checkbox.d/bmc.cfg"
+    parser = ArgumentParser(description=intro_message,
+                            formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', type=str,
+                        default="/etc/checkbox.d/bmc.cfg",
+                        help="Supply config file for getting authentication info")
+    args = parser.parse_args()
+
+    return inventory(args)
+
+if __name__ == '__main__':
+    sys.exit(main())
