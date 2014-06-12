@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  ipmi_power_policy
+
+Description
+ 1. Use ipmitool to set power on policy through OOB.
+ 2. Criteria: the change of power policy should take effect without BMC firmware cold reset or system reboot.
+
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+
+import sys
+import shlex
+import time
+import subprocess
+from subprocess import (
+    check_output,
+    CalledProcessError
+)
+import re
+import configparser
+import os
+
+def set_power_policy(host_ip, user, password, rule):
+    os.system('ipmitool -H {} -U {} -P {} chassis policy {}'.format(host_ip, user, password, rule))
+
+def get_chassis_status(host_ip, user, password):
+    cmd = 'ipmitool -H {} -U {} -P {} chassis status'.format(host_ip, user, password)
+    output = check_output(shlex.split(cmd), universal_newlines=True)
+    return output
+
+def get_power_policy(host_ip, user, password):
+    result = get_chassis_status(host_ip, user, password)
+    policy = re.search(r'Power Restore Policy\s*:\s*([a-zA-Z0-9-._ ]+\n)', result)
+    if policy  == None:
+        return 'Error'
+    else:
+        return policy.group(1).strip()
+
+def check_policy(host_ip, user, password, rule):
+    current_policy = get_power_policy(host_ip, user, password)
+    if current_policy == rule:
+        print("Successfully setting power policy")
+        return 0
+    else:
+        return 1
+
+def power_policy_test(args):
+
+    #IPMI config file
+    policy_rule = args.rule
+    if not policy_rule:
+        print("No specified policy to set")
+        return 88
+
+    DEFAULT_CFG = "/etc/checkbox.d/bmc.cfg"
+
+    if not "config" in vars(args):
+        config_file = DEFAULT_CFG
+    else:
+        config_file = args.config
+
+    config = configparser.RawConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 20
+
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 30
+
+    try:
+        user_value = config.get('Account', 'USER')
+        passwd_value = config.get('Account', 'PASSWORD')
+        if not user_value or not passwd_value:
+            print("Invalid or Empty credential info")
+            return 40
+
+    except configparser.Error:
+        print("Invalid or Empty credential info")
+        return 50
+
+    flag = 0
+    for tg in targets_list:
+            
+        if not tg or not user_value or not passwd_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for IPMI out-of-band access")
+            return 60
+        else:
+            print("SUT =", tg)
+
+            try:
+                set_power_policy(tg, user_value, passwd_value, policy_rule)
+            except:
+                print("Fail to set power policy")
+                return 70
+
+            time.sleep(5)          
+
+            try:
+                chassis_status = get_chassis_status(tg, user_value, passwd_value)
+            except:
+                print("Fail to get chassis status")
+                return 80
+
+            current_policy = get_power_policy(tg, user_value, passwd_value)
+
+            value = check_policy(tg, user_value, passwd_value, policy_rule)
+
+            if value == 1:
+                flag = 1
+
+    if flag == 1:
+        return 1
+    return 0
+
+def main():
+    intro_message = "Default config location is /etc/checkbox.d/bmc.cfg"
+    parser = ArgumentParser(description=intro_message,
+                            formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', type=str,
+                        default="/etc/checkbox.d/bmc.cfg",
+                        help="Supply config file for getting authentication info")
+    parser.add_argument('--rule', help="always-on, always-off or previous")
+    args = parser.parse_args()
+    return power_policy_test(args)
+
+if __name__ == '__main__':
+    sys.exit(main())
