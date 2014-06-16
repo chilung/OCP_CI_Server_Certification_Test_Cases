@@ -6,10 +6,11 @@ requires:
 command:
  cat <<'EOF' | run_templates -t -s 'udev_resource | filter_templates -w "category=DISK"'
  plugin: shell
- name: TC-007-0003-001-Disk_Health_`ls /sys$path/block`
+ name: TC-007-0003-001-HDD_Healthiness_`ls /sys$path/block`
  requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
+  block_device.`ls /sys$path/block`_rotation == 'yes'
  description:
   This test case is used for test leopard.
   1. Use smartmontools to monitor disk health.
@@ -32,6 +33,7 @@ command:
  requires:
   device.path == "$path"
   block_device.`ls /sys$path/block`_state != 'removable'
+  block_device.`ls /sys$path/block`_rotation == 'yes'
  description:
   This test case is used for test leopard.
   1. Use badblocks command to perform a full disk bad block scan with 0xff pattern.
