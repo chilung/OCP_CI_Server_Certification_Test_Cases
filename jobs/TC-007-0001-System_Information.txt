@@ -2,7 +2,7 @@ plugin: shell
 name: TC-007-0001-001-Disk_Information
 requires: package.name == 'lshw'
 user: root
-command: disk_info
+command: disk_info_leopard
 description:
  This test case is used for test leopard.
  1. Use lshw command to gather disk information. 
