@@ -40,6 +40,6 @@ info/disk_partitions
 # Actual test cases
 __TC-007-0005-JBOD_Testing__
 TC-007-0005-001-Get_All_HDDs
-TC-007-0005-003-Build_RAID_6
+TC-007-0005-002-Build_RAID_6
 TC-007-0005-004-RAID_6_Availability_Test
 TC-007-0005-006-Rebuild_RAID_6
