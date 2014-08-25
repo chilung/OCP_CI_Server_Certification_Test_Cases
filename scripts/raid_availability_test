@@ -33,22 +33,17 @@ from subprocess import check_output, Popen, PIPE
 def main():
     current_directory = os.getcwd()
     working_directory = os.path.dirname(os.path.abspath(__file__))
+    return_code = 0
 
-    command = 'lshw -xml'
+    command = "lsscsi |grep -i lsi | awk -F ' ' '{print $6}'"
     with open(os.devnull, "w") as NULL:
-       hwinfo_xml = check_output(command, stderr=NULL, shell=True)
-    root = ET.fromstring(hwinfo_xml)
+      device = check_output(command, stderr=NULL, shell=True)
 
-    # Parser lshw XML for gather RAID volume.
-    raid_info = root.findall(".//node[@id='disk'][@class='volume']")
+    device = device.decode('utf-8')
 
-    if not raid_info:
+    if not device:
         print("Cannot find any RAID volume.")
         return 10
-
-    # Find out which device is created by RAID.
-    for volume in raid_info:
-        device = volume.find('logicalname').text
 
     # Test read/write file on RAID device.
     command = '{0}/read_write_file -d {1}'.format(working_directory,
