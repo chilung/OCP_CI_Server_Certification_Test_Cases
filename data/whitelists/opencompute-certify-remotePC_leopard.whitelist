@@ -44,7 +44,7 @@ info/disk_partitions
 # Actual test cases
 __TC-006-0006-Remotely_Power_Control__
 TC-006-0006-001-Remotely_Power_Off_and_On
-TC-006-0006-002-Remotely_Power_Reset
+TC-006-0006-002-Remotely_Hard_Reset
 TC-006-0006-003-Remotely_Warm_Reboot
 __TC-006-0008-User_Levels__
 TC-006-0008-001-Verify_BMC_Account_Privilege-User
