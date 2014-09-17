@@ -162,7 +162,7 @@ def ipmi_reset_oob(args):
                             print("Failed to check power status")
                             return 77
                         
-                        time.sleep(30)
+                        time.sleep(180)
                         break
 
                     else:
