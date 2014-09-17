@@ -120,7 +120,7 @@ def ipmi_user_level_test(args):
             time.sleep(5)
 
             reset_result = power_reset(tg, user_value, password_value)
-            time.sleep(30)
+            time.sleep(180)
             if not new_user_value or not new_user_id_value:
                 print("Require new user info pre-configured in /etc/checkbox.d/bmc.cfg")
                 return 60
