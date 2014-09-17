@@ -112,7 +112,7 @@ def ipmi_reset_oob(args):
                             print("Failed executing ipmi, Reason: %s" % ipmi_exception)
                             return 6
 
-                        time.sleep(30)
+                        time.sleep(180)
                         break
                     else:
                         time.sleep(10)
