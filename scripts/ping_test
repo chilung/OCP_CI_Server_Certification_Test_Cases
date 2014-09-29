@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""
+File Name
+  ping_test
+
+Description
+ 1. Test network connection using ping
+ 
+Authors
+  Sophia Wu 
+
+"""
+
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+import sys
+import time
+import subprocess
+from subprocess import (
+    check_output,
+    CalledProcessError
+)
+
+def ping_test(args):
+    IP = args.ip_addr
+    CYCLE_TIME = args.cycle_time
+    TIMES = args.times
+    if IP is None:
+        print("No IP address given")
+        return 1
+
+    if CYCLE_TIME is None:
+        CYCLE_TIME = 10
+
+    if TIMES is None:
+        TIMES = 30
+
+
+    count = 1
+    while count <= TIMES: 
+        ping_cmd = 'ping -c 1 {}>/dev/null 2>/dev/null'.format(IP)
+        ping_rtn = subprocess.call(ping_cmd, shell=True)
+        print("=============================================")
+        print("ping test count = ", count)
+
+        if ping_rtn == 0:
+            print("Succesfully connect to", IP)
+            return 0
+        else:
+            print("Fail to connect to", IP)
+            time.sleep(CYCLE_TIME)
+            if count >= TIMES:
+                print()
+                print("*********************************************")
+                print()
+                print("TIMEOUT, END of TEST.")
+                print()
+                print("*********************************************")
+                return 2
+            count = count+1
+            continue
+        
+def main():
+    intro_message = "Test network connection using ping tool."
+    parser = ArgumentParser(description=intro_message,
+                            formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--ip_addr')
+    parser.add_argument('--cycle_time', type=int)
+    parser.add_argument('--times', type=int)
+    args = parser.parse_args()
+    return ping_test(args)
+
+if __name__ == '__main__':
+    sys.exit(main())

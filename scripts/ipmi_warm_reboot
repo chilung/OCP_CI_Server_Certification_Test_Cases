@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""
+Copyright (C) 2010-2014 by Cloud Computing Center for Mobile Applications
+Industrial Technology Research Institute
+
+File Name
+  ipmi_warm_reboot
+
+Description
+  1. Use ipmitool out-of-band access to power soft(off) and power on the SUT 20 times.
+  2. Criteria: complete power soft(off) and power on the SUT successfully using ipmitool out-of-band access.
+
+Authors
+  Sophia Wu <Sophia.Wu@itri.org.tw>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3,
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+import sys
+import subprocess
+import time 
+import configparser
+from argparse import (
+    ArgumentParser,
+    RawTextHelpFormatter
+)
+
+def ping_host_test(host_ip):
+    
+    ping_host_cmd = '/usr/share/checkbox/scripts/ping_test --ip_addr {} --cycle_time 60 --times 5 1>/dev/null 2>/dev/null'.format(host_ip)
+    return_code = subprocess.call(ping_host_cmd, shell=True)
+    return return_code
+
+def ping_bmc_test(bmc_ip):
+
+    ping_bmc_cmd = '/usr/share/checkbox/scripts/ping_test --ip_addr {} --cycle_time 30 --times 6 1>/dev/null 2>/dev/null'.format(bmc_ip)
+    return_code = subprocess.call(ping_bmc_cmd, shell=True)
+    return return_code
+
+def ping_result(ip):
+    
+    ping_cmd = 'ping -c 1 {} 1>/dev/null 2>/dev/null'.format(ip)
+    return_code = subprocess.call(ping_cmd, shell=True)
+    return return_code
+
+def ipmi_power_soft(bmc_ip, user, password):
+    power_soft_cmd = 'ipmitool -H {} -P {} -U {} power soft 1>/dev/null 2>/dev/null'.format(bmc_ip, user, password)
+    return_code = subprocess.call(power_soft_cmd, shell=True)
+    return return_code
+
+def ipmi_power_on(bmc_ip, user, password):
+    power_on_cmd = 'ipmitool -H {} -P {} -U {} power on 1>/dev/null 2>/dev/null'.format(bmc_ip, user, password)
+    return_code = subprocess.call(power_on_cmd, shell=True)
+    return return_code
+
+def ipmi_warm_reboot(args):
+
+    DEFAULT_CFG = "/etc/checkbox.d/bmc.cfg"
+    host_ip = args.ip_addr
+    config_file = DEFAULT_CFG
+
+    config = configparser.RawConfigParser()
+
+    try:
+        config.readfp(open(config_file))
+    except IOError:
+        print("No config file found")
+        return 10
+
+    try:
+        targets_options = config.options('Targets')
+        targets_list = []
+        for target_key in targets_options:
+            targets_list.append(config.get('Targets', target_key))
+
+        if not targets_list:
+            print("Invalid or Empty targets")
+            return 20
+
+    except configparser.Error:
+        print("Invalid or Empty targets")
+        return 30
+
+    try:
+        user_value = config.get('Account', 'USER')
+        passwd_value = config.get('Account', 'PASSWORD')
+        if not user_value or not passwd_value:
+            print("Invalid or Empty credential info")
+            return 40
+
+    except configparser.Error:
+        print("Invalid or Empty credential info")
+        return 50
+
+    flag = 0
+    for tg in targets_list:
+
+        if not tg or not user_value or not passwd_value:
+            print("Require Taget IP, Account(USER/PASSWORD) for IPMI out-of-band access")
+            return 60
+        elif not host_ip:
+            print("No IP address given")
+            return 70
+        else:
+
+            print("SUT =", tg)
+            print("HOST =", host_ip)
+            for n in range(20):
+                
+                print("COUNT =", n)
+                
+                if ping_host_test(host_ip) == 0 and ping_bmc_test(tg) == 0:
+                    power_soft_return = ipmi_power_soft(tg, user_value, passwd_value)
+                    time.sleep(30)
+                    if power_soft_return == 0:
+                        print("Succesful to perform power soft via BMC")
+                        ping_count = 0
+                        while ping_result(host_ip) == 0:
+                            time.sleep(30)
+                            ping_count = ping_count+1
+                            if ping_count >= 5:
+                                print("OS is still alive")
+                                return 80
+                        if ping_bmc_test(tg) == 0:
+                            power_on_return = ipmi_power_on(tg, user_value, passwd_value)
+                            time.sleep(300)
+                            if power_on_return == 0:
+                                print("Succesful to perform power on via BMC")
+                            else:
+                                print("Fail to perform power on via BMC")
+                                flag = 1
+                                break
+                        else: 
+                            print("Fail to connect to BMC")
+                            flag = 1
+                            break	    
+                    else:
+                        print("Fail to perform power soft via BMC")
+                        flag = 1
+                        break
+                else:
+                    print("Network connection fail")
+                    flag=1
+                    break
+
+    if flag == 1:
+        return 1
+    return 0
+
+def main():
+
+    intro_message = "Default config location is /etc/checkbox.d/bmc.cfg"
+    parser = ArgumentParser(description=intro_message,
+                 formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--config', type=str,
+                 default="/etc/checkbox.d/bmc.cfg",
+                 help="Supply config file for getting authentication info")
+    parser.add_argument('--ip_addr', help="Host IP Address")
+    args = parser.parse_args()
+    return ipmi_warm_reboot(args)
+
+if __name__ == '__main__':
+    sys.exit(main())
