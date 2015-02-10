@@ -54,12 +54,12 @@ def ping_result(ip):
     return return_code
 
 def ipmi_power_soft(bmc_ip, user, password):
-    power_soft_cmd = 'ipmitool -H {} -P {} -U {} power soft 1>/dev/null 2>/dev/null'.format(bmc_ip, user, password)
+    power_soft_cmd = 'ipmitool -H {} -U {} -P {} power soft 1>/dev/null 2>/dev/null'.format(bmc_ip, user, password)
     return_code = subprocess.call(power_soft_cmd, shell=True)
     return return_code
 
 def ipmi_power_on(bmc_ip, user, password):
-    power_on_cmd = 'ipmitool -H {} -P {} -U {} power on 1>/dev/null 2>/dev/null'.format(bmc_ip, user, password)
+    power_on_cmd = 'ipmitool -H {} -U {} -P {} power on 1>/dev/null 2>/dev/null'.format(bmc_ip, user, password)
     return_code = subprocess.call(power_on_cmd, shell=True)
     return return_code
 
