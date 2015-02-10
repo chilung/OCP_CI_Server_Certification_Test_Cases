@@ -20,7 +20,7 @@ plugin: shell
 name: TC-006-0006-003-Remotely_Warm_Reboot
 requires: package.name == 'ipmitool'
 user: root
-command: echo "TBD"; exit 1
+command: /usr/share/checkbox/scripts/ipmi_warm_reboot --ip_addr <HOST_IP>
 _description:
  1. Use ipmitool out-of-band access to power warm reboot the SUT 20 times
  2. Criteria: complete 20 power warm reboot on SUT successfully using ipmitool out-of-band acces
